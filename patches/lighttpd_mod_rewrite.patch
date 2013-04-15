@@ -1,0 +1,11 @@
+--- src/mod_rewrite.c   2011-07-04 01:02:38.000000000 +0200
++++ mod_rewrite.c       2011-07-04 01:03:41.000000000 +0200
+@@ -461,7 +461,7 @@
+        /* skip if physical.path is a regular file */
+        sce = NULL;
+        if (HANDLER_ERROR != stat_cache_get_entry(srv, con, con->physical.path, &sce)) {
+-               if (S_ISREG(sce->st.st_mode)) return HANDLER_GO_ON;
++               if (S_ISREG(sce->st.st_mode) || S_ISDIR(sce->st.st_mode)) return HANDLER_GO_ON;
+        }
+
+        switch(r = process_rewrite_rules(srv, con, p, p->conf.rewrite_NF)) {

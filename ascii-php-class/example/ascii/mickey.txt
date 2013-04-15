@@ -1,0 +1,100 @@
+                                          MMMM
+                                       MMMMMMMMMM
+                                     MMMMMMMMMMMMMM
+         MMMM                        MMMMMMMMMMMMMMM
+      MMMMMMMMMM                    MMMMMMMMMMMMMMMM
+     MMMMMMMMMMMM                  MMMMMMMMMMMMMMMMMM
+   MMMMMMMMMMMMMMM                 MMMMMMMMMMMMMMMMMM
+  MMMMMMMMMMMMMMMMM                MMMMMMMMMMMMMMMMMM
+  MMMMMMMMMMMMMMMMM                MMMMMMMMMMMMMMMMMM
+ MMMMMMMMMMMMMMMMMMM               MMMMMMMMMMMMMMMMMM
+ MMMMMMMMMMMMMMMMMMM               MMMMMMMMMMMMMMMMMM
+ MMMMMMMMMMMMMMMMMMM                MMMMMMMMMMMMMMMMM
+ MMMMMMMMMMMMMMMMMMM     MMMMMMM    MMMMMMMMMMMMMMMMM
+ MMMMMMMMMMMMMMMMMMM   MMMMMMMMMMMMM MMMMMMMMMMMMMMM
+ MMMMMMMMMMMMMMMMMMM  MMMMMMMMM----MMMMMMMMMMMMMMMM
+ MMMMMMMMMMMMMMMMMM MMMMMMMMMM------MMMMMMMMMMMMMM
+ MMMMMMMMMMMMMMMMMMMMM----MMM---/=\--MMMMMMMMMMMM
+  MMMMMMMMMMMMMMMMMMM--==--MM------\--MMM MMMMMM
+  MMMMMMMMMMMMMMMMMM--/-----M-------\--MMM
+   MMMMMMMMMMMMMMMM--/-----------------MMM
+     MMMMMMMMM  MMM--|------------------MMM
+       MMMMM   MMM------/..\---/..\-----MMM
+               MMM-----/....\-/....\----MMMM
+              MMMM-----......-......----MMMM
+              MMMM-----......-......----MMMM
+              MMMM-----......-.MM...---MMMMM
+              MMMMM----...MM.-.MMM..---MMMMM
+              MMMMM----..MMM.-\MMM./---MMMMM
+              MMMMMM---\.MMM.--\M./---/-----
+              MMMMMM----\\M/=======\---------
+              MM----M--/====-MMMMM------------
+                -----------MMMMMMMM-----------
+               ------------MMMMMMMM-----------
+               ------------MMMMMMMM----X------
+               ------_/----MMMMMMM-----/-\----
+               -----/\------MMMMM------|-----
+               ----/--\---------------/-----
+                -------\-------------M-----
+                --------=-----------MM----
+                  -------\=========MMM---
+                   ------MMMMMMMMMMMM---
+                     -----MXXXXXXXXM---
+                    MMMMM--XXXXXXXX--
+                 MMMMMMMMM---XXXX---M
+            MMMMMMMMMMMMMMM--------MMM
+           MMMMMM:++MMMMMMMMM----MMMMM
+          MMMMMM:MMMMMMMMMMMMMMMMMMMMMM
+          MMMMM:M////MMMMMMMMMMMMMMMMMM
+          MMMMM//////////MMMMMMMMMMMMMMM
+          MMMM/////////////MMMMMMMMMMMMM
+          MMM///////////////MMMMMMMMMMMM
+           M///...////////////MMMMMMMMMMM
+           ///....////..///////MMMMMMMMMM
+           ///....///....///////MM  MMMMMM
+           ///....///....////////M  MMMMMM
+          ////...///.....///////// MMMMMMMM
+          ////..////...../////////MMMMMMMMM
+          //////////...../////////MMMMMMMMM
+          //////////....//////////MMMMMMMM
+          ///////////..///////////MMMMMMM
+          ////////////////////////MMMMM
+          ////////////////////////MMM
+           ///////////////////////
+           ///////////////////////
+           ///////////////////////
+           ///////////////////////
+          ////////////////////////
+          ////////////////////////
+          //////X//////////////////
+           //////XXX///////////////
+             ///////V//////////////
+                /////X//////////:::
+                 MMMM/////MMMM::MM
+                  MMMMM|MMMMMMM   MMM
+                  MMMMMM|MMMMMM      MMMM____
+                   MMMMM|MMMMMM              \------
+                    MMMM\MMMMMM                     -_
+                     MMMM|MMMMMM                      \
+                     MMMM\MMMMMM                       \
+                      MMMM\MMMMM                        |
+                       MMM|MMMMMM                      /
+        VVVVVVV      VVMMMM\MMMMM                     /
+     VVVVVVVVVXVVVV  VVVMMMM|MMMM                   _-
+     VVVVVVVVVVXVVVVVIVVVMMIIMMMMVV            -----
+    VVVVVVVVVVVVVXXVVVIVVVVIIMMMMMVV
+    VVVVVVVVVVVVVVVXXVVVVVVVIIVMMMVVVVVVV
+    VVVVVVVVVVVVVVVVXVXVVVVVIIVVVVVVVVVVVVVVVV
+    VVVVVVVVVVVVVVVVVXVXVVVVIVIVVVVVVVVVVVVXVVVVVV
+    VVVVVVVVVVVVVVVVVVXVXVVIVVVIVVVVVVVVVXVVXVVVVVVV
+     VVVVVVVVVVVVVVVVVVXVXVIVVVVVVVVVVVVXVVXVVVVVVVVV
+     VVVVVVVVVVVVVVVVVVVXVVIVVVVVVVVVVVXVXVVVVVVVVVVVV
+      VVVVVVVVVVVVVVVVVVVVVVIVVVVVVVVVXVXVVVVVVVVVVVVV
+       VVVVVVVVVVVVVVVVVVVVVIVVVVVVVVXVXVVVVVVVVVVVVVV
+         VVVVVVVVVVVVVVVVVV  VVVVVVVXXVVVVVVVVVVVVVVVV
+           VVVVVVVVVVVVVV     VVVXXXVVVVVVVVVVVVVVVVVV
+              VVVVVVVVV        VXVVVVVVVVVVVVVVVVVVVV
+                                 VVVVVVVVVVVVVVVVVVV
+                                  VVVVVVVVVVVVVVVVV
+                                   VVVVVVVVVVVVVV
+                                     VVVVVVVVV
