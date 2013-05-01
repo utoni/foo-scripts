@@ -1,0 +1,18 @@
+#!/bin/sh
+
+unclutter -idle 1 -root &       # hide cursor when unused
+
+# Turn CapsLock into Control
+xmodmap -e "clear lock" -e "keycode 66 = Control_R" -e "add Control = Control_R"
+
+# minimal GTK+ traybar
+trayer --edge bottom --align left --SetDockType true --SetPartialStrut false --expand true --width 10 --height 25 &
+
+# starting gpg daemon
+gpg-agent --daemon --use-standard-socket
+
+konsole &
+kmail &
+firefox &
+
+exec ck-launch-session dbus-launch xmonad
