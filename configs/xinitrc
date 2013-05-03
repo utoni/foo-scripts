@@ -13,4 +13,7 @@ trayer --edge bottom --align left --SetDockType true --SetPartialStrut false --e
 # starting gpg daemon
 gpg-agent --daemon --use-standard-socket
 
+# activating xscreensaver
+xscreensaver -nosplash &
+
 exec ck-launch-session dbus-launch xmonad
