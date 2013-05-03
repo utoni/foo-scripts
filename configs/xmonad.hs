@@ -12,6 +12,7 @@ import XMonad.Hooks.SetWMName
 import XMonad.Layout.NoBorders
 import XMonad.Layout.Spiral
 import XMonad.Layout.Tabbed
+import XMonad.Actions.SpawnOn
 import XMonad.Util.Run(spawnPipe)
 import XMonad.Util.EZConfig(additionalKeys)
 import qualified XMonad.StackSet as W
@@ -30,6 +31,7 @@ myTerminal = "/usr/bin/konsole"
 -- Workspaces
 -- The default number of workspaces (virtual screens) and their names.
 --
+myWorkspaces :: [WorkspaceId]
 myWorkspaces = ["1:term","2:web","3:code","4:vm","5:media"] ++ map show [6..9]
  
 
@@ -119,7 +121,6 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   ----------------------------------------------------------------------
   -- Custom key bindings
   --
-
   -- Start a terminal. Terminal to start is specified by myTerminal variable.
   [ ((modMask .|. shiftMask, xK_Return),
      spawn $ XMonad.terminal conf)
@@ -311,7 +312,16 @@ myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList $
 -- per-workspace layout choices.
 --
 -- By default, do nothing.
-myStartupHook = return ()
+--myStartupHook = return ()
+spawnToWorkspace :: String -> String -> X ()
+spawnToWorkspace program workspace = do
+                spawn program     
+                windows $ W.greedyView workspace
+myStartupHook :: X ()
+myStartupHook = do
+                setWMName "LG3D"
+                spawnToWorkspace "konsole" "1:web"
+                spawnToWorkspace "konsole" "2:term"
  
 
 ------------------------------------------------------------------------
@@ -326,7 +336,6 @@ main = do
           , ppCurrent = xmobarColor xmobarCurrentWorkspaceColor ""
           , ppSep = " "}
       , manageHook = manageDocks <+> myManageHook
-      , startupHook = setWMName "LG3D"
   }
  
 

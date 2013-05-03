@@ -1,0 +1,25 @@
+set from=matzeton@googlemail.com
+set hostname=googlemail.com
+set folder="imaps://matzeton@imap.googlemail.com/"
+set postponed="=[Google Mail]/Entwürfe"
+set record="=[Google Mail]/Gesendet"
+set spoolfile="=INBOX"
+set trash = "=[Google Mail]/Trash"
+
+set smtp_url = "smtp://matzeton@smtp.gmail.com:587"
+unset smtp_pass
+set realname = "dev0/classless"
+
+set mbox="!"
+set mail_check=90
+set imap_idle
+set imap_check_subscribed
+unset imap_passive
+unset imap_peek
+set sidebar_visible="yes"
+set sidebar_width=25
+bind index,pager \CP sidebar-prev
+bind index,pager \CN sidebar-next
+bind index,pager \CO sidebar-open
+color sidebar_new yellow default
+

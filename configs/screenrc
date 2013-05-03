@@ -1,0 +1,59 @@
+startup_message off
+termcapinfo xterm*|Eterm|mlterm|rxvt 'hs:ts=\E]0;:fs=\007:ds=\E]0;screen\007'
+termcapinfo rxvt-unicode ti@:te@     #enable SHIFT-PGUP / SHIFT-PGDOWN scroll
+termcapinfo xterm ti@:te@
+termcapinfo xterm-color ti@:te@
+termcapinfo wy* CS=\E[?1h:CE=\E[?1l:vi=\E[?25l:ve=\E[?25h:VR=\E[?5h:VN=\E[?5l:cb=\E[1K:CD=\E[1J
+terminfo rxvt-unicode ti@:te@:
+term screen-256color
+defutf8 on
+defscrollback 1024
+nonblock on
+vbell off
+msgwait 10
+multiuser on
+writelock on
+defwritelock on
+
+sessionname default
+screen    -t irc           1 irssi
+screen    -t mail          2 mutt
+screen    -t bash1         3 bash
+screen    -t bash2         4 bash
+select 3
+
+bindkey -k k5 prev	# F5  to prev WND
+bindkey -k k6 next	# F6  to next WND
+bindkey -k k7 detach	# F7  to detach screen session from this terminal
+bindkey -k k8 kill	# F8  to kill current screen window.
+bindkey "^[[1;5C" next	# META-LEFT to next WND
+bindkey "^[[1;5D" prev	# METa-RIGHT
+bindkey -k k9 screen	# F9  to create a new screen
+bindkey -k k; title	# F10 to rename current screen window
+bindkey -k F2 quit	# F12 to quit
+
+backtick 1 2 2 /bin/sh -c 'cat /proc/loadavg | cut -d " " -f 1'
+backtick 2 999 999 hostname
+backtick 3 999 999 /bin/sh -c 'uptime | cut -d " " -f 4'
+backtick 4 5 5 /bin/sh -c 'users | wc -w'
+
+caption always
+caption string "[F5]PREV [F6]NEXT [F7]DETACH [F8]KILL [F9]NEW [F10]RENAME [F12]QUIT %{= kG}%-=%2`%{-} | %3`%{-} day(s) | %4`%{-} user(s)"
+
+hardstatus on
+hardstatus alwayslastline
+hardstatus string '%{= kG}%-Lw%{= kW}%50> [%n %t]%{= kG}%+Lw%< %{= kG}%-=%D %m/%d/%y | %C:%s %A | idle: %1`%{-}'
+
+#hardstatus string "%w"
+#hardstatus string "%{.kW}%-w%{.W}%n %t%{-}%{=b kw}%?%+w%?"            #B&W
+#hardstatus string "%{.kW}%-w%{.W}%n %t%{-}%{=b kw}%?%+w%? %=%c %d/%m/%Y" #B&W & date&time
+#hardstatus string '%{= R}[%{w}%H%{R}][%{w}%=%?%-Lw%?%{R}%n*%f%t%?(%u)%? %{w}%?%+Lw%?%?%=%{R}][%{w}%m/%d %{W}%C%A%{R}]'
+#hardstatus string "%{.kW}%-w%{.W}%n %t%{-}%+w %=%C %a "
+#hardstatus string "%{=b kw} %?%-Lw%?%{=br kw}[%n %t]%{=b kw}%?%+Lw%? %="
+#hardstatus alwayslastline '%{bk}[ %{W}%H %{b}][ %{w}%l%{b} ]   %{b}[%{w} %D %d.%m %c:%s%{b} ]'
+#hardstatus alwayslastline '%{bk}[%{W}%H%{b}] %{w} %l %= %n*%t%{-b r}%{w}%+w %= %{w}%d %D %{w}%c'
+#hardstatus alwayslastline '%{wk}[ %{g}][%= %{wk}%?%-Lw%?%{=b kR}(%{W}%n*%f %t%?(%u)%?%{=b kR})%{= kw}%?%+Lw%?%?%= %{g}][%{Y}%l%{g}]%{=b C}[ %m/%d %c ]%{W}'
+sorendition kw
+hardcopydir ~/.screen
+
+
