@@ -20,4 +20,8 @@ fi
 # activate trickled network bandwith control
 trickled
 
-exec ck-launch-session dbus-launch xmonad
+if [ -x /usr/bin/ck-launch-session ]; then
+  exec ck-launch-session dbus-launch xmonad
+else
+  exec dbus-launch xmonad
+fi

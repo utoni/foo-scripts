@@ -320,8 +320,8 @@ spawnToWorkspace program workspace = do
 myStartupHook :: X ()
 myStartupHook = do
                 setWMName "LG3D"
-                spawnToWorkspace "konsole" "1:web"
-                spawnToWorkspace "konsole" "2:term"
+                spawnToWorkspace myTerminal "1:web"
+                spawnToWorkspace myTerminal "2:term"
  
 
 ------------------------------------------------------------------------
