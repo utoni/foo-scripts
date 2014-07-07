@@ -1,16 +1,20 @@
 Config { font = "-misc-fixed-*-*-*-*-18-*-*-*-*-*-*-*"
        , bgColor = "black"
+       , border = NoBorder
+       , borderColor = "black"
        , fgColor = "grey"
        , position = TopW L 85
-       , commands = [ Run Thermal "THRM" [] 10
+       , commands = [ Run Com "~/.xmobar_cputemp.sh" ["CPU"] "ctmp" 10
+                    , Run Com "~/.xmobar_cputemp.sh" ["MB"] "mtmp" 10
                     , Run Network "eth0" ["-L","0","-H","32","--normal","green","--high","red"] 10
+                    , Run Network "eth1" ["-L","0","-H","32","--normal","green","--high","red"] 10
                     , Run Cpu ["-L","15","-H","50","--normal","green","--high","red"] 10
                     , Run Memory ["Mem: %"] 10
                     , Run Swap [] 10
-                    , Run Date "%a %b %_d %Y %H:%M:%S" "date" 10
+                    , Run Date "%a %b (%V) %_d %Y %H:%M:%S" "date" 10
                     , Run StdinReader
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%StdinReader% }{ %THRM% | %cpu% | %memory% * %swap% | %eth0% | %date%"
+       , template = "%StdinReader% }{ %ctmp% | %mtmp% | %cpu% | %memory% * %swap% | %eth0% | %eth1% | %date%"
        }
