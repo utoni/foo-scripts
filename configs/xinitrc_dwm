@@ -1,0 +1,17 @@
+#!/bin/sh
+
+unclutter -root &       # hide cursor when unused
+
+# Turn Super/Windows key into XF86Launch1
+xmodmap -e "keycode 133 = XF86Launch1"
+
+# Turn CapsLock into Control
+xmodmap -e "clear lock" -e "keycode 66 = Control_R" -e "add Control = Control_R"
+
+# Show memory use, volume %, battery % and time in status bar
+while xsetroot -name "$(free -m | awk '/cache:/ { print $3"MB" }')  Vol:$(amixer get Master | tail -1 | awk '{ print $5 }' | tr -d '[]')  $(date +%R)  $(df -h | sed -e 's/[[:space:]]\([[:digit:]]\{1,2\}%\) \(\/home\|\/boot\|\/$\)/MP: \2 USG: \1/' | grep -oE '[[:space:]]MP:(.*)$' | tr '\n' ' ')  Upt:$(uptime | sed -e 's/,[[:space:]]*[[:digit:]]*[[:space:]]users,.*//')"
+do
+  sleep 1
+done &
+
+exec ck-launch-session dbus-launch dwm
