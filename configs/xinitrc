@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# background wallpaper
+feh --bg-center ~/wallpaper2.jpg
+
 # hide cursor when unused
 unclutter -idle 3 -root &
 
