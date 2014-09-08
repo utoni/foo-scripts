@@ -13,7 +13,8 @@ import XMonad.Layout.NoBorders
 import XMonad.Layout.Spiral
 import XMonad.Layout.Tabbed
 import XMonad.Actions.SpawnOn
-import XMonad.Util.Run(spawnPipe)
+import XMonad.Actions.PhysicalScreens
+import XMonad.Util.Run
 import XMonad.Util.EZConfig(additionalKeys)
 import qualified XMonad.StackSet as W
 import qualified Data.Map as M
@@ -32,9 +33,8 @@ myTerminal = "/usr/bin/konsole"
 -- The default number of workspaces (virtual screens) and their names.
 --
 myWorkspaces :: [WorkspaceId]
-myWorkspaces = ["1:term","2:web","3:code","4:vm","5:media"] ++ map show [6..9]
+myWorkspaces = ["1:term","2:code","3:web","4:vm","5:media"] ++ map show [6..9]
  
-
 ------------------------------------------------------------------------
 -- Window rules
 -- Execute arbitrary actions and WindowSet manipulations when managing
@@ -50,12 +50,14 @@ myWorkspaces = ["1:term","2:web","3:code","4:vm","5:media"] ++ map show [6..9]
 -- 'className' and 'resource' are used below.
 --
 myManageHook = composeAll
-    [ className =? "Google-chrome" --> doShift "2:web"
+    [ className =? "Iceweasel" --> doShift "3:web"
+    , className =? "Icedove" --> doShift "3:web"
+    , className =? "Pidgin" --> doShift "1:term"
+    , className =? "Eclipse" --> doShift "2:code"
+    , className =? "Kmail" --> doShift "3:web"
+    , className =? "Konqueror" --> doShift "2:code"
     , resource =? "desktop_window" --> doIgnore
     , className =? "Galculator" --> doFloat
-    , className =? "Steam" --> doFloat
-    , className =? "Gimp" --> doFloat
-    , resource =? "gpicview" --> doFloat
     , className =? "MPlayer" --> doFloat
     , className =? "VirtualBox" --> doShift "4:vm"
     , className =? "Xchat" --> doShift "5:media"
@@ -126,56 +128,35 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
      spawn $ XMonad.terminal conf)
 
   -- Lock the screen using xscreensaver.
-  , ((modMask .|. controlMask, xK_l),
+  , ((modMask .|. shiftMask, xK_l),
      spawn "xscreensaver-command -lock")
-
-  -- Launch dmenu via yeganesh.
-  -- Use this to launch programs without a key binding.
-  , ((modMask, xK_p),
-     spawn "exe=`dmenu_path_c | yeganesh` && eval \"exec $exe\"")
-
-  -- Take a screenshot in select mode.
-  -- After pressing this key binding, click a window, or draw a rectangle with
-  -- the mouse.
-  , ((modMask .|. shiftMask, xK_p),
-     spawn "select-screenshot")
 
   -- Take full screenshot in multi-head mode.
   -- That is, take a screenshot of everything you see.
-  , ((modMask .|. controlMask .|. shiftMask, xK_p),
-     spawn "screenshot")
+  , ((modMask .|. shiftMask, xK_p),
+     spawn "xwd -out ~/screenshot.xwd; convert ~/screenshot.xwd ~/screenshot.jpg")
 
   -- Mute volume.
-  , ((modMask .|. controlMask, xK_m),
+  , ((modMask .|. shiftMask, xK_m),
      spawn "amixer -q set Master toggle")
 
   -- Decrease volume.
-  , ((modMask .|. controlMask, xK_j),
+  , ((modMask .|. shiftMask, xK_j),
      spawn "amixer -q set Master 10%-")
 
   -- Increase volume.
-  , ((modMask .|. controlMask, xK_k),
+  , ((modMask .|. shiftMask, xK_k),
      spawn "amixer -q set Master 10%+")
-
-  -- Audio previous.
-  , ((0, 0x1008FF16),
-     spawn "")
-
-  -- Play/pause.
-  , ((0, 0x1008FF14),
-     spawn "")
-
-  -- Audio next.
-  , ((0, 0x1008FF17),
-     spawn "")
-
-  -- Eject CD tray.
-  , ((0, 0x1008FF2C),
-     spawn "eject -T")
 
   --------------------------------------------------------------------
   -- "Standard" xmonad key bindings
   --
+
+  -- switch to next physicial monitor
+  , ((modMask .|. shiftMask, xK_x), onNextNeighbour W.view)
+
+  -- suspend to ram
+  , ((modMask .|. shiftMask, xK_s), spawn "sudo /usr/sbin/s2ram --force")
 
   -- Close focused window.
   , ((modMask .|. shiftMask, xK_c),
@@ -313,15 +294,12 @@ myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList $
 --
 -- By default, do nothing.
 --myStartupHook = return ()
-spawnToWorkspace :: String -> String -> X ()
-spawnToWorkspace program workspace = do
-                spawn program     
-                windows $ W.greedyView workspace
 myStartupHook :: X ()
 myStartupHook = do
-                setWMName "LG3D"
-                spawnToWorkspace myTerminal "1:web"
-                spawnToWorkspace myTerminal "2:term"
+--                safeSpawnProg "iceweasel"
+                safeSpawnProg "konqueror"
+                safeSpawnProg "pidgin"
+		setWMName "LG3D"
  
 
 ------------------------------------------------------------------------
@@ -335,7 +313,7 @@ main = do
           , ppTitle = xmobarColor xmobarTitleColor "" . shorten 100
           , ppCurrent = xmobarColor xmobarCurrentWorkspaceColor ""
           , ppSep = " "}
-      , manageHook = manageDocks <+> myManageHook
+      , manageHook = myManageHook <+> manageSpawn <+> manageDocks
   }
  
 
@@ -362,7 +340,7 @@ defaults = defaultConfig {
     mouseBindings = myMouseBindings,
  
     -- hooks, layouts
+    startupHook = myStartupHook,
     layoutHook = smartBorders $ myLayout,
-    manageHook = myManageHook,
-    startupHook = myStartupHook
+    manageHook = myManageHook
 }

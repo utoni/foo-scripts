@@ -66,6 +66,7 @@ xterm*|rxvt*)
 esac
 
 alias ssh-htwk='ssh -C -X kain.imn.htwk-leipzig.de -l tuhlig'
+alias ssh-petra='ssh -C upjetra.no-ip.org -L 5900:127.0.0.1:5900 -l toni'
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
