@@ -1,0 +1,19 @@
+#!/bin/sh
+
+xset -dpms
+xset s noblank
+matchbox-window-manager -use_titlebar no -use_desktop_mode plain -use_cursor no &
+pulseaudio --fail=false --start &
+projectM-pulseaudio &
+sleep 2
+sudo /usr/bin/spawn_mp3blaster &
+sleep 2
+
+while (`true`); do
+	pidof mp3blaster >/dev/null
+	if [ $? -ne 0 ]; then
+		pulseaudio -k
+		exit 0
+	fi
+	sleep 1
+done
