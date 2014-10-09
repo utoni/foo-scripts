@@ -1,0 +1,5 @@
+# This is a configuration file for /etc/init.d/sleepd.
+
+# Parameters to pass to sleepd.
+#PARAMS="-l 0.3 -a -s '/usr/sbin/s2ram --force' -u 600 -r 1000 -t 1000"
+PARAMS="-l 0.3 -a -s '/usr/sbin/s2ram --force' -u 600"
