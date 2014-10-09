@@ -4,7 +4,9 @@ Config { font = "-misc-fixed-*-*-*-*-18-*-*-*-*-*-*-*"
        , borderColor = "black"
        , fgColor = "grey"
        , position = TopW L 100
-       , commands = [ Run Com "~/.xmobar_gputemp.sh" ["GPU"] "gtmp" 10
+       , commands = [ Run Com "~/.xmobar_hddusage.sh" ["IO_R"] "read" 10
+                    , Run Com "~/.xmobar_hddusage.sh" ["IO_W"] "write" 10
+                    , Run Com "~/.xmobar_gputemp.sh" ["GPU"] "gtmp" 10
                     , Run Com "~/.xmobar_cputemp.sh" ["CPU"] "ctmp" 10
                     , Run Com "~/.xmobar_cputemp.sh" ["MB"] "mtmp" 10
                     , Run Network "eth0" ["-L","0","-H","32","--normal","green","--high","red"] 10
