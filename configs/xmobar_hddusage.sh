@@ -1,12 +1,19 @@
 #!/bin/bash
 
-HDD="sda"
-
-NOUT=$(iostat | tr -s ' ' | grep -E '^(sd|hd)')
 if [ "x$1" = "xread" ]; then
-	OUT=$(echo "$NOUT" | grep $HDD | cut -d ' ' -f 3)
+	OUT=$(iostat | sed -n 's/sda\s*[0-9,]*\s*\([0-9]*\).*$/\1/p')
 elif [ "x$1" = "xwrite" ]; then
-	OUT=$(echo "$NOUT" | grep $HDD | cut -d ' ' -f 4)
+	OUT=$(iostat | sed -n 's/sda\s*[0-9,]*\s*[0-9,]*\s*\([0-9]*\).*$/\1/p')
+else
+	exit 1
 fi
-echo "${OUT}"
-exit 0
+
+if [ "$OUT" -gt 5000 ]; then
+	echo "<fc=#FF0000>${OUT}</fc>Kbs"
+elif [ "$OUT" -gt 2000 ]; then
+	echo "<fc=#FFFF00>${OUT}</fc>Kbs"
+elif [ "$OUT" -gt 100 ]; then
+	echo "<fc=#00FF00>${OUT}</fc>Kbs"
+else
+	echo "${OUT}Kbs"
+fi
