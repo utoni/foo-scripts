@@ -1,0 +1,83 @@
+--- a/grub-core/normal/menu_text.c
++++ b/grub-core/normal/menu_text.c
+@@ -136,63 +136,6 @@
+ 		     + GRUB_TERM_MARGIN + 1));
+ }
+ 
+-static int
+-print_message (int nested, int edit, struct grub_term_output *term, int dry_run)
+-{
+-  int ret = 0;
+-  grub_term_setcolorstate (term, GRUB_TERM_COLOR_NORMAL);
+-
+-  if (edit)
+-    {
+-      if(dry_run)
+-	ret++;
+-      else
+-	grub_putcode ('\n', term);
+-      ret += grub_print_message_indented_real (_("Minimum Emacs-like screen editing is \
+-supported. TAB lists completions. Press Ctrl-x or F10 to boot, Ctrl-c or F2 for a \
+-command-line or ESC to discard edits and return to the GRUB menu."),
+-					       STANDARD_MARGIN, STANDARD_MARGIN,
+-					       term, dry_run);
+-    }
+-  else
+-    {
+-      const char *msg = _("Use the %C and %C keys to select which "
+-			  "entry is highlighted.\n");
+-      char *msg_translated;
+-
+-      msg_translated = grub_xasprintf (msg, GRUB_UNICODE_UPARROW,
+-				       GRUB_UNICODE_DOWNARROW);
+-      if (!msg_translated)
+-	return 0;
+-      if(dry_run)
+-	ret++;
+-      else
+-	grub_putcode ('\n', term);
+-      ret += grub_print_message_indented_real (msg_translated, STANDARD_MARGIN,
+-					       STANDARD_MARGIN, term, dry_run);
+-
+-      grub_free (msg_translated);
+-
+-      if (nested)
+-	{
+-	  ret += grub_print_message_indented_real
+-	    (_("Press enter to boot the selected OS, "
+-	       "\'e\' to edit the commands before booting "
+-	       "or \'c\' for a command-line. ESC to return previous menu.\n"),
+-	     STANDARD_MARGIN, STANDARD_MARGIN, term, dry_run);
+-	}
+-      else
+-	{
+-	  ret += grub_print_message_indented_real
+-	    (_("Press enter to boot the selected OS, "
+-	       "\'e\' to edit the commands before booting "
+-	       "or \'c\' for a command-line.\n"),
+-	     STANDARD_MARGIN, STANDARD_MARGIN, term, dry_run);
+-	}	
+-    }
+-  return ret;
+-}
+-
+ static void
+ print_entry (int y, int highlight, grub_menu_entry_t entry,
+ 	     struct grub_term_output *term)
+@@ -337,7 +280,7 @@
+ 
+   /* 3 lines for timeout message and bottom margin.  2 lines for the border.  */
+   *num_entries = grub_term_height (term) - GRUB_TERM_TOP_BORDER_Y
+-    - (print_message (nested, edit, term, 1) + 3) - 2;
++    - 2;
+ 
+   grub_term_getcolor (term, &old_color_normal, &old_color_highlight);
+ 
+@@ -355,7 +298,6 @@
+   grub_term_setcolor (term, grub_color_menu_normal, grub_color_menu_highlight);
+   draw_border (term, *num_entries);
+   grub_term_setcolor (term, old_color_normal, old_color_highlight);
+-  print_message (nested, edit, term, 0);
+ }
+ 
+ static void
