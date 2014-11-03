@@ -1,0 +1,19 @@
+
+module hald-custom 1.0;
+
+require {
+	type fixed_disk_device_t;
+	type mnt_t;
+	type system_dbusd_t;
+	class blk_file { read ioctl open };
+	class dir { write remove_name add_name };
+	class file { write rename create unlink };
+}
+
+#============= system_dbusd_t ==============
+allow system_dbusd_t fixed_disk_device_t:blk_file { ioctl open };
+#!!!! The source type 'system_dbusd_t' can write to a 'dir' of the following types:
+# system_dbusd_var_run_t, system_dbusd_tmp_t, user_home_t, tmp_t, var_run_t
+
+allow system_dbusd_t mnt_t:dir { write remove_name add_name };
+allow system_dbusd_t mnt_t:file { write rename create unlink };
