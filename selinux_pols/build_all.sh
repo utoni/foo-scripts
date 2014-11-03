@@ -9,7 +9,6 @@ function run_cmd {
 	return $?
 }
 
-echo_cmd
 echo "$0: building all in $BDIR" >&2
 for file in ${BDIR}/*.te; do
 	echo "* building: $file"

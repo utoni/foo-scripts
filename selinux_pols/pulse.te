@@ -1,0 +1,9 @@
+module pulse-custom 1.0;
+
+require {
+	type pulseaudio_t;
+	class sem { read write unix_write };
+}
+
+#============= pulseaudio_t ==============
+allow pulseaudio_t self:sem { read write unix_write };
