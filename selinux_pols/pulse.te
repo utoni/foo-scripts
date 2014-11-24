@@ -1,4 +1,4 @@
-module pulse-custom 1.0;
+module pulse-custom 1.2;
 
 require {
 	type pulseaudio_t;
@@ -7,3 +7,33 @@ require {
 
 #============= pulseaudio_t ==============
 allow pulseaudio_t self:sem { read write unix_write };
+
+require {
+	type udev_tbl_t;
+	type pulseaudio_t;
+	class file { read getattr open };
+}
+
+#============= pulseaudio_t ==============
+allow pulseaudio_t udev_tbl_t:file { read getattr open };
+
+require {
+	type pulseaudio_t;
+	class sem destroy;
+}
+
+#============= pulseaudio_t ==============
+allow pulseaudio_t self:sem destroy;
+
+require {
+	type initrc_state_t;
+	type tmpfs_t;
+	type pulseaudio_t;
+	class sem { unix_read create getattr setattr associate };
+	class file { read write getattr open };
+}
+
+#============= pulseaudio_t ==============
+allow pulseaudio_t initrc_state_t:file { read getattr open };
+allow pulseaudio_t self:sem { unix_read create getattr setattr associate };
+allow pulseaudio_t tmpfs_t:file { read write };

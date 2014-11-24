@@ -1,5 +1,4 @@
-
-module hald-custom 1.0;
+module hald-custom 1.2;
 
 require {
 	type fixed_disk_device_t;
@@ -17,3 +16,24 @@ allow system_dbusd_t fixed_disk_device_t:blk_file { ioctl open };
 
 allow system_dbusd_t mnt_t:dir { write remove_name add_name };
 allow system_dbusd_t mnt_t:file { write rename create unlink };
+
+require {
+	type removable_device_t;
+	type event_device_t;
+	type system_dbusd_t;
+	class blk_file { read ioctl open };
+	class chr_file read;
+}
+
+#============= system_dbusd_t ==============
+allow system_dbusd_t event_device_t:chr_file read;
+allow system_dbusd_t removable_device_t:blk_file { read ioctl open };
+
+require {
+	type removable_device_t;
+	type system_dbusd_t;
+	class blk_file { read ioctl open };
+}
+
+#============= system_dbusd_t ==============
+allow system_dbusd_t removable_device_t:blk_file { read ioctl open };

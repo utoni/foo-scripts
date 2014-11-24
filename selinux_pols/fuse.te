@@ -1,0 +1,10 @@
+module fuse-custom 1.0;
+
+require {
+	type fuse_device_t;
+	type mount_t;
+	class chr_file { write read };
+}
+
+#============= mount_t ==============
+allow mount_t fuse_device_t:chr_file { write read };
