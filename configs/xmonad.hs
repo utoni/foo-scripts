@@ -25,7 +25,7 @@ import qualified Data.Map as M
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
 --
-myTerminal = "/usr/bin/konsole"
+myTerminal = "x-terminal-emulator"
 
 
 ------------------------------------------------------------------------
@@ -33,7 +33,7 @@ myTerminal = "/usr/bin/konsole"
 -- The default number of workspaces (virtual screens) and their names.
 --
 myWorkspaces :: [WorkspaceId]
-myWorkspaces = ["1:term","2:code","3:web","4:vm","5:media"] ++ map show [6..9]
+myWorkspaces = ["1:pidg","2:file","3:web","4:work1","5:work2"] ++ map show [6..9]
  
 ------------------------------------------------------------------------
 -- Window rules
@@ -52,15 +52,17 @@ myWorkspaces = ["1:term","2:code","3:web","4:vm","5:media"] ++ map show [6..9]
 myManageHook = composeAll
     [ className =? "Iceweasel" --> doShift "3:web"
     , className =? "Icedove" --> doShift "3:web"
-    , className =? "Pidgin" --> doShift "1:term"
-    , className =? "Eclipse" --> doShift "2:code"
+    , className =? "Pidgin" --> doShift "1:pidg"
+    , className =? "Eclipse" --> doShift "2:file"
     , className =? "Kmail" --> doShift "3:web"
-    , className =? "Konqueror" --> doShift "2:code"
+    , className =? "Konqueror" --> doShift "2:file"
+    , className =? "Nautilus" --> doShift "2:file"
     , resource =? "desktop_window" --> doIgnore
     , className =? "Galculator" --> doFloat
+    , className =? "Gource" --> doFloat
     , className =? "MPlayer" --> doFloat
-    , className =? "VirtualBox" --> doShift "4:vm"
-    , className =? "Xchat" --> doShift "5:media"
+    , className =? "VirtualBox" --> doShift "4:work1"
+    , className =? "Xchat" --> doShift "5:work2"
     , isFullscreen --> (doF W.focusDown <+> doFullFloat)]
 
 
@@ -130,6 +132,14 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   -- Lock the screen using xscreensaver.
   , ((modMask .|. shiftMask, xK_l),
      spawn "xscreensaver-command -lock")
+
+  -- Start Firefox
+  , ((modMask .|. shiftMask, xK_i),
+     spawn "iceweasel")
+
+  -- run demnu
+  , ((modMask .|. shiftMask, xK_d),
+     spawn "dmenu_run -b")
 
   -- Take full screenshot in multi-head mode.
   -- That is, take a screenshot of everything you see.
@@ -296,8 +306,7 @@ myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList $
 --myStartupHook = return ()
 myStartupHook :: X ()
 myStartupHook = do
---                safeSpawnProg "iceweasel"
-                safeSpawnProg "konqueror"
+                safeSpawnProg "iceweasel"
                 safeSpawnProg "pidgin"
 		setWMName "LG3D"
  

@@ -12,10 +12,10 @@ Config { font = "-misc-fixed-*-*-*-*-18-*-*-*-*-*-*-*"
                     , Run Com "~/.xmobar_cputemp.sh" ["MB"] "mtmp" 100
                     , Run Network "eth0" ["-L","0","-H","32","--normal","green","--high","red"] 10
                     , Run Network "eth1" ["-L","0","-H","32","--normal","green","--high","red"] 10
-                    , Run Cpu ["-L","15","-H","50","--normal","green","--high","red"] 10
+                    , Run Cpu ["-L","15","-H","50","--normal","green","--high","red"] 20
                     , Run Memory ["Mem: %"] 200
                     , Run Swap [] 200
-                    , Run Date "%a %b (%V) %_d %Y %H:%M:%S" "date" 10
+                    , Run Date "%a %b %_d %Y %H:%M (KW%V)" "date" 600
                     , Run StdinReader
                     ]
        , sepChar = "%"
