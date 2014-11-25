@@ -1,0 +1,10 @@
+module dmesg 1.0;
+
+require {
+	type dmesg_t;
+	type tty_device_t;
+	class chr_file { read write };
+}
+
+#============= dmesg_t ==============
+allow dmesg_t tty_device_t:chr_file { read write };

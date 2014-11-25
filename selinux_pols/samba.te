@@ -1,0 +1,12 @@
+module samba-custom 1.0;
+
+require {
+	type sysctl_crypto_t;
+	type smbd_t;
+	class dir search;
+	class file { read getattr open };
+}
+
+#============= smbd_t ==============
+allow smbd_t sysctl_crypto_t:dir search;
+allow smbd_t sysctl_crypto_t:file { read getattr open };

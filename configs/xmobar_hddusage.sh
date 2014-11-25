@@ -1,9 +1,9 @@
 #!/bin/bash
 
 if [ "x$1" = "xread" ]; then
-	OUT=$(iostat | sed -n 's/sda\s*[0-9,]*\s*\([0-9]*\).*$/\1/p')
+	OUT=$(sudo iotop -b -n 1 -P -k -qq | sed -n 's/^Total DISK READ:\s*\([0-9]*\)\..*$/\1/p')
 elif [ "x$1" = "xwrite" ]; then
-	OUT=$(iostat | sed -n 's/sda\s*[0-9,]*\s*[0-9,]*\s*\([0-9]*\).*$/\1/p')
+	OUT=$(sudo iotop -b -n 1 -P -k -qq | sed -n 's/^.*Total DISK WRITE:\s*\([0-9]*\)\..*$/\1/p')
 else
 	exit 1
 fi

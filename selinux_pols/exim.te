@@ -1,0 +1,12 @@
+module exim-custom 1.0;
+
+require {
+	type sysctl_crypto_t;
+	type exim_t;
+	class dir search;
+	class file { read getattr open };
+}
+
+#============= exim_t ==============
+allow exim_t sysctl_crypto_t:dir search;
+allow exim_t sysctl_crypto_t:file { read getattr open };
