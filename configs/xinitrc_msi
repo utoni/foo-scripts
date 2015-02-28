@@ -1,11 +1,18 @@
 #!/bin/sh
 
+xrandr -s 0
+xrdb -load $HOME/.Xdefaults
+xsetroot -cursor_name left_ptr
+xset b off
+xset s off
+xset -dpms
+
 start-pulseaudio-x11
 
 feh --bg-center ~/chai.jpg
 
-# hide cursor when unused
-unclutter -idle 3 -root &
+# hide cursor when unused (DONT FORGET -noevents / BUG)
+unclutter -idle 3 -root -noevents &
 
 # Turn CapsLock into Control
 xmodmap -e "clear lock" -e "keycode 66 = Control_R" -e "add Control = Control_R"
@@ -27,8 +34,11 @@ fi
 # activate trickled network bandwith control
 trickled
 
+if [ -x /usr/bin/xcompmgr ]; then
+  /usr/bin/xcompmgr &
+fi
 if [ -x /usr/bin/ck-launch-session ]; then
-  exec ck-launch-session dbus-launch xmonad
+  exec ck-launch-session dbus-launch ~/.cabal/bin/xmonad
 else
-  exec dbus-launch xmonad
+  exec dbus-launch ~/.cabal/bin/xmonad
 fi

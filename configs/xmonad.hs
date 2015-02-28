@@ -14,6 +14,7 @@ import XMonad.Layout.Spiral
 import XMonad.Layout.Tabbed
 import XMonad.Actions.SpawnOn
 import XMonad.Actions.PhysicalScreens
+import XMonad.Actions.CycleWS
 import XMonad.Util.Run
 import XMonad.Util.EZConfig(additionalKeys)
 import qualified XMonad.StackSet as W
@@ -51,6 +52,7 @@ myWorkspaces = ["1:pidg","2:file","3:web","4:work1","5:work2"] ++ map show [6..9
 --
 myManageHook = composeAll
     [ className =? "Iceweasel" --> doShift "3:web"
+    , className =? "Chromium" --> doShift "3:web"
     , className =? "Icedove" --> doShift "3:web"
     , className =? "Pidgin" --> doShift "1:pidg"
     , className =? "Eclipse" --> doShift "2:file"
@@ -77,25 +79,20 @@ myManageHook = composeAll
 -- which denotes layout choice.
 --
 myLayout = avoidStruts (
-    Tall 1 (3/100) (1/2) |||
-    Mirror (Tall 1 (3/100) (1/2)) |||
-    tabbed shrinkText tabConfig |||
-    Full |||
-    spiral (6/7))
-
+    Tall 1 (3/100) (1/2) ||| Mirror (Tall 1 (3/100) (1/2)) ||| Full ||| tabbed shrinkText myTabConfig)
 
 ------------------------------------------------------------------------
 -- Colors and borders
 -- Currently based on the ir_black theme.
 --
 myNormalBorderColor = "#7c7c7c"
-myFocusedBorderColor = "#ffb6b0"
+myFocusedBorderColor = "#ff0000"
 
 -- Colors for text and backgrounds of each tab when in "Tabbed" layout.
-tabConfig = defaultTheme {
+myTabConfig = defaultTheme {
     activeBorderColor = "#7C7C7C",
     activeTextColor = "#CEFFAC",
-    activeColor = "#000000",
+    activeColor = "#445566",
     inactiveBorderColor = "#7C7C7C",
     inactiveTextColor = "#EEEEEE",
     inactiveColor = "#000000"
@@ -183,6 +180,18 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   -- Resize viewed windows to the correct size.
   , ((modMask, xK_n),
      refresh)
+
+  , ((modMask, xK_Left),
+     prevWS)
+
+  , ((modMask, xK_Right),
+     nextWS)
+
+  , ((modMask, xK_Up),
+     shiftToNext)
+
+  , ((modMask, xK_Down),
+     shiftToPrev)
 
   -- Move focus to the next window.
   , ((modMask, xK_Tab),
