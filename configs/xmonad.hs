@@ -79,7 +79,7 @@ myManageHook = composeAll
 -- which denotes layout choice.
 --
 myLayout = avoidStruts (
-    Tall 1 (3/100) (1/2) ||| Mirror (Tall 1 (3/100) (1/2)) ||| Full ||| tabbed shrinkText myTabConfig)
+    Tall 2 (3/100) (2/5) ||| Mirror (Tall 1 (3/100) (1/2)) ||| Full ||| tabbed shrinkText myTabConfig)
 
 ------------------------------------------------------------------------
 -- Colors and borders
@@ -142,6 +142,8 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   -- That is, take a screenshot of everything you see.
   , ((modMask .|. shiftMask, xK_p),
      spawn "xwd -out ~/screenshot.xwd; convert ~/screenshot.xwd ~/screenshot.jpg")
+  , ((modMask .|. shiftMask, xK_o),
+     spawn "xwd -root -out ~/screenshot_full.xwd; convert ~/screenshot_full.xwd ~/screenshot_full.jpg")
 
   -- Mute volume.
   , ((modMask .|. shiftMask, xK_m),
@@ -188,10 +190,10 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
      nextWS)
 
   , ((modMask, xK_Up),
-     shiftToNext)
+     windows W.focusUp)
 
   , ((modMask, xK_Down),
-     shiftToPrev)
+     windows W.focusDown)
 
   -- Move focus to the next window.
   , ((modMask, xK_Tab),
