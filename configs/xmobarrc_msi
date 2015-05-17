@@ -4,18 +4,19 @@ Config { font = "-misc-fixed-*-*-*-*-18-*-*-*-*-*-*-*"
        , borderColor = "black"
        , fgColor = "grey"
        , position = TopW L 100
-       , commands = [ Run Com "~/.xmobar_cputemp.sh" ["CPU"] "ctmp" 100
-                    , Run Com "~/.xmobar_cputemp.sh" ["MB"] "mtmp" 100
-                    , Run Com "~/.xmobar_bat.sh" ["BAT"] "bat" 100
+       , commands = [ Run Com "./.xmobar_iostat.sh" ["IO"] "iost" 20
+                    , Run Com "./.xmobar_cputemp.sh" ["CPU"] "ctmp" 100
+                    , Run Com "./.xmobar_cputemp.sh" ["MB"] "mtmp" 100
+                    , Run Com "./.xmobar_bat.sh" ["BAT"] "bat" 100
                     , Run Network "eth0" ["-L","0","-H","32","--normal","green","--high","red"] 20
                     , Run Network "wlan0" ["-L","0","-H","32","--normal","green","--high","red"] 20
                     , Run Cpu ["-L","15","-H","50","--normal","green","--high","red"] 20
                     , Run Memory ["Mem: %"] 200
                     , Run Swap [] 200
-                    , Run Date "%a %b (%V) %_d %Y %H:%M:%S" "date" 20
+                    , Run Date "%a %b %_d %Y %H:%M (KW%V)" "date" 600
                     , Run StdinReader
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%StdinReader% }{ %ctmp% %mtmp% | %cpu% | %bat% | %memory% | %eth0% | %wlan0% | %date%"
+       , template = "%StdinReader% }{ %iost% | %ctmp% %mtmp% | %cpu% | %bat% | %memory% | %eth0% | %wlan0% | %date%"
        }
