@@ -1,0 +1,14 @@
+#!/usr/bin/tmux source-file
+
+new-session -d
+
+split-window -d -t 0 -h
+split-window -d -t 1 -v
+
+send-keys -t 0 '' enter
+send-keys -t 1 'htop' enter C-l
+
+select-pane -t 0
+
+attach
+
