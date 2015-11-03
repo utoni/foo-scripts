@@ -79,7 +79,7 @@ myManageHook = composeAll
 -- which denotes layout choice.
 --
 myLayout = avoidStruts (
-    Tall 2 (3/100) (2/5) ||| Mirror (Tall 1 (3/100) (1/2)) ||| Full ||| tabbed shrinkText myTabConfig)
+    Mirror (Tall 1 (3/100) (1/2)) ||| Tall 1 (3/100) (1/2) ||| Full ||| tabbed shrinkText myTabConfig)
 
 ------------------------------------------------------------------------
 -- Colors and borders
@@ -113,7 +113,7 @@ myBorderWidth = 1
 --
 -- modMask lets you specify which modkey you want to use. The default
 -- is mod1Mask ("left alt"). You may also consider using mod3Mask
--- ("right alt"), which does not conflict with emacs keybindings. The
+--
 -- "windows key" is usually mod4Mask.
 --
 myModMask = mod1Mask
@@ -128,7 +128,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
   -- Lock the screen using xscreensaver.
   , ((modMask .|. shiftMask, xK_l),
-     spawn "xscreensaver-command -lock")
+     spawn "xtrlock")
 
   -- Start Firefox
   , ((modMask .|. shiftMask, xK_i),
@@ -234,14 +234,6 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   -- Push window back into tiling.
   , ((modMask, xK_t),
      withFocused $ windows . W.sink)
-
-  -- Increment the number of windows in the master area.
-  , ((modMask, xK_comma),
-     sendMessage (IncMasterN 1))
-
-  -- Decrement the number of windows in the master area.
-  , ((modMask, xK_period),
-     sendMessage (IncMasterN (-1)))
 
   -- Toggle the status bar gap.
   -- TODO: update this binding with avoidStruts, ((modMask, xK_b),
