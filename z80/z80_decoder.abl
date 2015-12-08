@@ -1,0 +1,17 @@
+module z80_adr_decoder
+
+declarations 
+dev device 'P16v8';
+IOR, a4, a5, a6, a7, MEMREQ pin 1,2,3,4,5,6;
+ROMCE, RAMCE, PIO1CE, PIO2CE, CTCCE pin 16, 12, 13, 14, 15;
+
+
+equations
+!ROMCE	= (!MEMREQ & !a7);
+!RAMCE	= (!MEMREQ & a7);
+!PIO1CE = (!IOR & a4 & !a5 & !a6);
+!PIO2CE = (!IOR & a5 & !a4 & !a6);
+!CTCCE	= (!IOR & a6 & !a5 & !a4);
+
+end z80_adr_decoder
+
