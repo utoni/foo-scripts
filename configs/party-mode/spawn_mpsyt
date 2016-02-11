@@ -10,4 +10,4 @@ if [ "x${SD_USER}" = "x" ]; then
 	exit 2
 fi
 export SD_USER
-openvt -l -s -- su -l ${SD_USER} -s /usr/local/bin/mpsyt
+openvt -l -s -- su -l ${SD_USER} -s /home/${SD_USER}/mps-youtube/bin/mpsyt
