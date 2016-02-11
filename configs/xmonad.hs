@@ -1,6 +1,6 @@
--- xmonad config used by Vic Fryzel
--- Author: Vic Fryzel
+-- Author: Vic Fryzel, Toni Uhlig
 -- http://github.com/vicfryzel/xmonad-config
+-- https://github.com/lnslbrty/foo-scripts/blob/master/configs/xmonad.hs
  
 import System.IO
 import System.Exit
@@ -10,8 +10,11 @@ import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.SetWMName
 import XMonad.Layout.NoBorders
-import XMonad.Layout.Spiral
 import XMonad.Layout.Tabbed
+import XMonad.Layout.Grid
+import XMonad.Layout.PerWorkspace
+import XMonad.Layout.FixedColumn
+import XMonad.Layout.IM
 import XMonad.Actions.SpawnOn
 import XMonad.Actions.PhysicalScreens
 import XMonad.Actions.CycleWS
@@ -33,8 +36,13 @@ myTerminal = "x-terminal-emulator"
 -- Workspaces
 -- The default number of workspaces (virtual screens) and their names.
 --
+comWS  = "1:com"
+fileWS = "2:file"
+webWS  = "3:web"
+w1WS   = "4:work1"
+w2WS   = "5:work2"
 myWorkspaces :: [WorkspaceId]
-myWorkspaces = ["1:pidg","2:file","3:web","4:work1","5:work2"] ++ map show [6..9]
+myWorkspaces = [ comWS, fileWS, webWS, w1WS, w2WS ] ++ map show [6..9]
  
 ------------------------------------------------------------------------
 -- Window rules
@@ -44,6 +52,7 @@ myWorkspaces = ["1:pidg","2:file","3:web","4:work1","5:work2"] ++ map show [6..9
 -- workspace.
 --
 -- To find the property name associated with a program, use
+-- rkspac
 -- > xprop | grep WM_CLASS
 -- and click on the client you're interested in.
 --
@@ -51,20 +60,21 @@ myWorkspaces = ["1:pidg","2:file","3:web","4:work1","5:work2"] ++ map show [6..9
 -- 'className' and 'resource' are used below.
 --
 myManageHook = composeAll
-    [ className =? "Iceweasel" --> doShift "3:web"
-    , className =? "Chromium" --> doShift "3:web"
-    , className =? "Icedove" --> doShift "3:web"
-    , className =? "Pidgin" --> doShift "1:pidg"
-    , className =? "Eclipse" --> doShift "2:file"
-    , className =? "Kmail" --> doShift "3:web"
-    , className =? "Konqueror" --> doShift "2:file"
-    , className =? "Nautilus" --> doShift "2:file"
+    [ className =? "Seahorse" --> doShift webWS
+    , className =? "Iceweasel" --> doShift webWS
+    , className =? "chromium-browser" --> doShift webWS
+    , className =? "Icedove" --> doShift webWS
+    , className =? "Pidgin" --> doShift comWS
+    , className =? "Eclipse" --> doShift fileWS
+    , className =? "Kmail" --> doShift webWS
+    , className =? "Konqueror" --> doShift fileWS
+    , className =? "Nautilus" --> doShift fileWS
     , resource =? "desktop_window" --> doIgnore
     , className =? "Galculator" --> doFloat
     , className =? "Gource" --> doFloat
     , className =? "MPlayer" --> doFloat
-    , className =? "VirtualBox" --> doShift "4:work1"
-    , className =? "Xchat" --> doShift "5:work2"
+    , className =? "VirtualBox" --> doShift w1WS
+    , className =? "Xchat" --> doShift w2WS
     , isFullscreen --> (doF W.focusDown <+> doFullFloat)]
 
 
@@ -78,8 +88,23 @@ myManageHook = composeAll
 -- The available layouts. Note that each layout is separated by |||,
 -- which denotes layout choice.
 --
-myLayout = avoidStruts (
-    Mirror (Tall 1 (3/100) (1/2)) ||| Tall 1 (3/100) (1/2) ||| Full ||| tabbed shrinkText myTabConfig)
+comLayout =
+    withIM (1/6) (Or
+      (Title "Buddy-Liste")
+      (Title "Buddy List"))
+      Grid
+fileLayout = tabbed shrinkText myTabConfig
+webLayout  = Full
+myLayout = avoidStruts $
+    onWorkspace comWS  comLayout $
+    onWorkspace fileWS fileLayout $
+    onWorkspace webWS  webLayout $
+      Mirror (Tall 1 (3/100) (1/2)) |||
+      Tall 1 (3/100) (1/2) |||
+      Grid |||
+      FixedColumn 1 20 80 10 |||
+      Full |||
+      tabbed shrinkText myTabConfig
 
 ------------------------------------------------------------------------
 -- Colors and borders
@@ -138,11 +163,12 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   , ((modMask .|. shiftMask, xK_d),
      spawn "dmenu_run -b")
 
+  -- Take a screenshot from the window on which the user clicks
+  , ((0, xK_Print),
+     spawn "xwd -out ~/screenshot.xwd; convert ~/screenshot.xwd ~/screenshot.jpg")
   -- Take full screenshot in multi-head mode.
   -- That is, take a screenshot of everything you see.
   , ((modMask .|. shiftMask, xK_p),
-     spawn "xwd -out ~/screenshot.xwd; convert ~/screenshot.xwd ~/screenshot.jpg")
-  , ((modMask .|. shiftMask, xK_o),
      spawn "xwd -root -out ~/screenshot_full.xwd; convert ~/screenshot_full.xwd ~/screenshot_full.jpg")
 
   -- Mute volume.
@@ -165,7 +191,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   , ((modMask .|. shiftMask, xK_x), onNextNeighbour W.view)
 
   -- suspend to ram
-  , ((modMask .|. shiftMask, xK_s), spawn "sudo /usr/sbin/s2ram --force")
+  , ((modMask .|. shiftMask, xK_s), spawn "xtrlock && sudo /usr/sbin/s2ram --force")
 
   -- Close focused window.
   , ((modMask .|. shiftMask, xK_c),
@@ -240,7 +266,9 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
   -- Quit xmonad.
   , ((modMask .|. shiftMask, xK_q),
-     io (exitWith ExitSuccess))
+--     sequence_ [ (spawn "pkill -TERM -P `pgrep -o xmonad`"), (io (exitWith ExitSuccess)) ])
+--     spawn "pkill -TERM -P `pgrep -o xmonad`; sleep 2; killall -TERM -u `id -nu`; sleep 1; kill -TERM `pgrep -o xmonad`")
+       spawn "/sbin/start-stop-daemon -S -b --exec /usr/bin/killall -- -TERM -u `id -nu`")
 
   -- Restart xmonad.
   , ((modMask, xK_q),
@@ -309,9 +337,12 @@ myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList $
 --myStartupHook = return ()
 myStartupHook :: X ()
 myStartupHook = do
-                safeSpawnProg "iceweasel"
+                safeSpawnProg "seahorse"
+                safeSpawnProg "chrome"
                 safeSpawnProg "pidgin"
 		setWMName "LG3D"
+                nextWS
+                nextWS
  
 
 ------------------------------------------------------------------------

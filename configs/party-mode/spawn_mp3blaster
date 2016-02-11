@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [ `id -u` -ne 0 ]; then
+	echo "$0: run with sudo $0" >&2
+	exit 1
+fi
+SD_USER="${SUDO_USER}"
+if [ "x${SD_USER}" = "x" ]; then
+	echo "$0: run with sudo $0" >&2
+	exit 2
+fi
+export SD_USER
+openvt -l -s -- su -l ${SD_USER} -s /usr/bin/padsp /usr/bin/mp3blaster
