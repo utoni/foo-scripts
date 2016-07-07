@@ -21,8 +21,10 @@ int main(int argc, char *argv[])
   display = XOpenDisplay("");
 
   if (XScreenSaverQueryExtension(display, &event_base, &error_base)) {
-    XScreenSaverQueryInfo(display, DefaultRootWindow(display), &info);
-
+    if (XScreenSaverQueryInfo(display, DefaultRootWindow(display), &info) != True) {
+      fprintf(stderr, "Error: XScreenSaver QueryInfo failed\n");
+      return -1;
+    }
     seconds = (float)info.idle/1000.0f;
     if ( d_seconds > 0 ) {
       if (d_seconds <= (unsigned int) seconds) {
