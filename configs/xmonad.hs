@@ -31,7 +31,6 @@ import qualified Data.Map as M
 --
 myTerminal = "x-terminal-emulator"
 
-
 ------------------------------------------------------------------------
 -- Workspaces
 -- The default number of workspaces (virtual screens) and their names.
@@ -65,6 +64,7 @@ myManageHook = composeAll
     , className =? "chromium-browser" --> doShift webWS
     , className =? "Icedove" --> doShift webWS
     , className =? "Pidgin" --> doShift comWS
+    , className =? "qTox" --> doShift comWS
     , className =? "Eclipse" --> doShift fileWS
     , className =? "Kmail" --> doShift webWS
     , className =? "Konqueror" --> doShift fileWS
@@ -168,7 +168,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
      spawn "xwd -out ~/screenshot.xwd; convert ~/screenshot.xwd ~/screenshot.jpg")
   -- Take full screenshot in multi-head mode.
   -- That is, take a screenshot of everything you see.
-  , ((modMask .|. shiftMask, xK_p),
+  , ((modMask .|. shiftMask, xK_Print),
      spawn "xwd -root -out ~/screenshot_full.xwd; convert ~/screenshot_full.xwd ~/screenshot_full.jpg")
 
   -- Mute volume.
@@ -266,8 +266,6 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
   -- Quit xmonad.
   , ((modMask .|. shiftMask, xK_q),
---     sequence_ [ (spawn "pkill -TERM -P `pgrep -o xmonad`"), (io (exitWith ExitSuccess)) ])
---     spawn "pkill -TERM -P `pgrep -o xmonad`; sleep 2; killall -TERM -u `id -nu`; sleep 1; kill -TERM `pgrep -o xmonad`")
        spawn "/sbin/start-stop-daemon -S -b --exec /usr/bin/killall -- -TERM -u `id -nu`")
 
   -- Restart xmonad.
@@ -340,6 +338,7 @@ myStartupHook = do
                 safeSpawnProg "seahorse"
                 safeSpawnProg "chrome"
                 safeSpawnProg "pidgin"
+                safeSpawnProg "qtox"
 		setWMName "LG3D"
                 nextWS
                 nextWS
