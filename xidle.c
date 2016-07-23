@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <X11/Xlib.h>
 #include <X11/extensions/scrnsaver.h>
 
@@ -19,9 +20,11 @@ int main(int argc, char *argv[])
   }
 
   display = XOpenDisplay("");
+  if (!display)
+    return -1;
 
-  if (XScreenSaverQueryExtension(display, &event_base, &error_base)) {
-    if (XScreenSaverQueryInfo(display, DefaultRootWindow(display), &info) != True) {
+  if (XScreenSaverQueryExtension(display, &event_base, &error_base) == true) {
+    if (XScreenSaverQueryInfo(display, DefaultRootWindow(display), &info) != true) {
       fprintf(stderr, "Error: XScreenSaver QueryInfo failed\n");
       return -1;
     }
