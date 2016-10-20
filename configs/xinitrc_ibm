@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# background wallpaper
+feh --bg-center ~/wallpaper2.jpg
+
+# hide cursor when unused
+unclutter -idle 3 -root &
+
+# Turn CapsLock into Control
+xmodmap -e "clear lock" -e "keycode 66 = Control_R" -e "add Control = Control_R"
+
+# starting gpg daemon
+gpg-agent --daemon --use-standard-socket
+
+# activating xscreensaver
+xscreensaver -nosplash &
+
+# akonadi server (kde4.* compat)
+if [ -x /usr/bin/akonadi_agent_server ]; then
+  akonadi_agent_server &
+fi
+
+if [ -x /usr/bin/ck-launch-session ]; then
+  exec ck-launch-session dbus-launch xmonad
+else
+  exec dbus-launch xmonad
+fi
