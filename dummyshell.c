@@ -7,7 +7,7 @@
 #ifdef _HAS_SIGNAL
 #include <signal.h>      /* signal(...) */
 #else
-#warn "SIGNAL disabled!"
+#warn "SIGNAL(_HAS_SIGNAL) disabled!"
 #endif
 #if defined(_HAS_UTMP) || defined(_HAS_SYSINFO)
 #include <string.h>      /* memset */
@@ -15,13 +15,13 @@
 #ifdef _HAS_UTMP
 #include <utmp.h>        /* utmp structure */
 #else
-#warn "UTMP disabled!"
+#warn "UTMP(_HAS_UTMP) disabled!"
 #endif
 #ifdef _HAS_SYSINFO
 #include "sys/types.h"   /* sysinfo structture */
 #include "sys/sysinfo.h" /* sysinfo(...) */
 #else
-#warn "SYSINFO disabled!"
+#warn "SYSINFO(_HAS_SYSINFO) disabled!"
 #endif
 
 /* for print_memusage() and print cpuusage() see: http://stackoverflow.com/questions/63166/how-to-determine-cpu-and-memory-consumption-from-inside-a-process */
@@ -152,7 +152,7 @@ int main(int argc, char** argv)
     if ((unsigned int)diff % 60 == 0) {
       struct tm localtime;
       if (localtime_r(&cur, &localtime) != NULL) {
-        printf("--- %02d:%02d:%02d ---\n", localtime.tm_hour, localtime.tm_min, localtime.tm_sec);
+        printf("\33[2K\r--- %02d:%02d:%02d ---\n", localtime.tm_hour, localtime.tm_min, localtime.tm_sec);
       }
 #ifdef _HAS_UTMP
       print_utmp();
