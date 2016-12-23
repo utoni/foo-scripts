@@ -1,5 +1,5 @@
 /*
- * build with: gcc -Wall -O2 -D_HAS_SIGNAL=1 -D_HAS_UTMP=1 -D_HAS_SYSINFO -ffunction-sections -fdata-sections -ffast-math -fomit-frame-pointer dummyshell.c -o dummyshell
+ * build with: gcc -Wall -O2 -D_HAS_HOSTENT=1 -D_HAS_SIGNAL=1 -D_HAS_UTMP=1 -D_HAS_SYSINFO -ffunction-sections -fdata-sections -ffast-math -fomit-frame-pointer dummyshell.c -o dummyshell
  * strip -s dummyshell
  */
 
@@ -9,6 +9,14 @@
 #include <termios.h>
 #include <fcntl.h>
 #include <time.h>
+#ifdef _HAS_HOSTENT
+#include <netdb.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#else
+#warn "HOSTENT(_HAS_HOSTENT) disabled!"
+#endif
 #ifdef _HAS_SIGNAL
 #include <signal.h>      /* signal(...) */
 #else
@@ -41,7 +49,47 @@ static const char txtheader[] =
 static volatile unsigned char doLoop = 1;
 
 
+#ifdef _HAS_HOSTENT
+#define ARP_STRING_LEN 1024
+#define ARP_IP_LEN 32
+#define XSTR(s) STR(s)
+#define STR(s) #s
+static void print_nethost(void)
+{
+  FILE *arpCache = fopen("/proc/net/arp", "r");
+  if (arpCache != NULL) {
+    char arpline[ARP_STRING_LEN+1];
+    memset(&arpline[0], '\0', ARP_STRING_LEN+1);
+    if (fgets(arpline, ARP_STRING_LEN, arpCache)) {
+      char arpip[ARP_IP_LEN+1];
+      memset(&arpip[0], '\0', ARP_IP_LEN);
+      const char nonline[] = "\33[2K\rhost online...: ";
+      size_t i = 0;
+      while (1 == fscanf(arpCache, "%" XSTR(ARP_IP_LEN) "s %*s %*s %*s %*s %*s", &arpip[0])) {
+        struct in_addr ip;
+        struct hostent *hp = NULL;
+        if (inet_aton(&arpip[0], &ip)) {
+          hp = gethostbyaddr((const void *)&ip, sizeof ip, AF_INET);
+        }
+        char *herrmsg = NULL;
+        if (hp == NULL) {
+          switch (h_errno) {
+            case HOST_NOT_FOUND: herrmsg = "HOST UNKNOWN"; break;
+            case NO_ADDRESS:     herrmsg = "IP UNKNOWN"; break;
+            case NO_RECOVERY:    herrmsg = "SERVER ERROR"; break;
+            case TRY_AGAIN:      herrmsg = "TEMPORARY ERROR"; break;
+          }
+        }
+        printf("%s[%lu] %.*s aka %s\n", nonline, (long unsigned int)++i, ARP_IP_LEN, arpip, (hp != NULL ? hp->h_name : herrmsg));
+        memset(&arpip[0], '\0', ARP_IP_LEN);
+      }
+    }
+  }
+}
+#endif
+
 #ifdef _HAS_UTMP
+#ifndef _GNU_SOURCE
 static size_t
 strnlen(const char *str, size_t maxlen)
 {
@@ -49,6 +97,7 @@ strnlen(const char *str, size_t maxlen)
   for (cp = str; maxlen != 0 && *cp != '\0'; cp++, maxlen--);
   return (size_t)(cp - str);
 }
+#endif
 
 static void print_utmp(void)
 {
@@ -169,6 +218,9 @@ int main(int argc, char** argv)
       }
 #ifdef _HAS_UTMP
       print_utmp();
+#endif
+#ifdef _HAS_HOSTENT
+      print_nethost();
 #endif
 #ifdef _HAS_SYSINFO
       print_memusage();
