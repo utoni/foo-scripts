@@ -1,3 +1,8 @@
+/*
+ * build with: gcc -Wall -O2 -D_HAS_SIGNAL=1 -D_HAS_UTMP=1 -D_HAS_SYSINFO -ffunction-sections -fdata-sections -ffast-math -fomit-frame-pointer dummyshell.c -o dummyshell
+ * strip -s dummyshell
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -37,17 +42,25 @@ static volatile unsigned char doLoop = 1;
 
 
 #ifdef _HAS_UTMP
+static size_t
+strnlen(const char *str, size_t maxlen)
+{
+  const char *cp;
+  for (cp = str; maxlen != 0 && *cp != '\0'; cp++, maxlen--);
+  return (size_t)(cp - str);
+}
+
 static void print_utmp(void)
 {
   int utmpfd = open("/var/run/utmp", O_RDONLY);
   if (utmpfd >= 0) {
     struct utmp ut;
     memset(&ut, '\0', sizeof(struct utmp));
-    printf("\33[2K\ruser online...: ");
-    while (read(utmpfd, &ut, sizeof(struct utmp)) == sizeof(struct utmp)) {
-      printf("%.*s ", UT_NAMESIZE, ut.ut_user);
+    const char uonline[] = "\33[2K\ruser online...: ";
+    size_t i = 0;
+    while ( read(utmpfd, &ut, sizeof(struct utmp)) == sizeof(struct utmp) && strnlen(ut.ut_user, UT_NAMESIZE) > 0 ) {
+      printf("%s[%lu] %.*s from %.*s\n", uonline, (long unsigned int)++i, UT_NAMESIZE, ut.ut_user, UT_HOSTSIZE, ut.ut_host);
     }
-    printf("\n");
   }
 }
 #endif
