@@ -108,7 +108,11 @@ static void print_utmp(void)
     const char uonline[] = "\33[2K\ruser online...: ";
     size_t i = 0;
     while ( read(utmpfd, &ut, sizeof(struct utmp)) == sizeof(struct utmp) && strnlen(ut.ut_user, UT_NAMESIZE) > 0 ) {
-      printf("%s[%lu] %.*s from %.*s\n", uonline, (long unsigned int)++i, UT_NAMESIZE, ut.ut_user, UT_HOSTSIZE, ut.ut_host);
+      if (strnlen(ut.ut_host, UT_HOSTSIZE) > 0) {
+        printf("%s[%lu] %.*s from %.*s\n", uonline, (long unsigned int)++i, UT_NAMESIZE, ut.ut_user, UT_HOSTSIZE, ut.ut_host);
+      } else {
+        printf("%s[%lu] %.*s\n", uonline, (long unsigned int)++i, UT_NAMESIZE, ut.ut_user);
+      }
     }
   }
 }
@@ -207,11 +211,16 @@ int main(int argc, char** argv)
   fd_set fds;
   time_t start = time(NULL);
   time_t cur;
+  unsigned char mins = 0, hrs = 0;
   while (1) {
     cur = time(NULL);
     double diff = difftime(cur, start);
 #if defined(_HAS_UTMP) || defined(_HAS_SYSINFO)
     if ((unsigned int)diff % 60 == 0) {
+      if (diff != 0 && ++mins == 60) {
+        mins = 0;
+        hrs++;
+      }
       struct tm localtime;
       if (localtime_r(&cur, &localtime) != NULL) {
         printf("\33[2K\r--- %02d:%02d:%02d ---\n", localtime.tm_hour, localtime.tm_min, localtime.tm_sec);
@@ -228,7 +237,7 @@ int main(int argc, char** argv)
 #endif
     }
 #endif
-    printf("\r( %0.fs )%s", diff, keymsg);
+    printf("\r--- %02d:%02d:%02d ---%s", hrs, mins, ((unsigned int)diff % 60), keymsg);
     fflush(stdout);
     fflush(stdin);
     FD_ZERO(&fds);
