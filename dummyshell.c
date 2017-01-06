@@ -1,5 +1,5 @@
 /*
- * build with: gcc -Wall -O2 -D_HAS_MSG=1 -D_HAS_HOSTENT=1 -D_HAS_SIGNAL=1 -D_HAS_UTMP=1 -D_HAS_SYSINFO -ffunction-sections -fdata-sections -ffast-math -fomit-frame-pointer dummyshell.c -o dummyshell
+ * build with: gcc -Wall -O2 -D_GNU_SOURCE=1 -D_HAS_CMD=1 -D_HAS_MSG=1 -D_HAS_HOSTENT=1 -D_HAS_SIGNAL=1 -D_HAS_UTMP=1 -D_HAS_SYSINFO -ffunction-sections -fdata-sections -ffast-math -fomit-frame-pointer dummyshell.c -o dummyshell
  * strip -s dummyshell
  */
 
@@ -10,8 +10,7 @@
 #include <fcntl.h>
 #include <time.h>
 #include <ctype.h>       /* isprint(...) */
-#include <stropts.h>     /* ioctl(...) */
-#include <sys/ioctl.h>
+#include <sys/ioctl.h>   /* ioctl(...) */
 #include <stdint.h>      /* UINT8_MAX */
 #include <string.h>      /* memset(...) */
 #include <sys/types.h>
@@ -118,7 +117,7 @@ static void print_cmds(void)
   size_t idx = 0;
   printf("\33[2K\r[COMMANDS]\n");
   while ( cmds[idx++].path != NULL ) {
-    printf("  [%lu] %s\n", idx-1, ( cmds[idx-1].name != NULL ? cmds[idx-1].name : "unknown" ));
+    printf("  [%lu] %s\n", (unsigned long int)idx-1, ( cmds[idx-1].name != NULL ? cmds[idx-1].name : "unknown" ));
   }
 }
 
