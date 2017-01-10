@@ -104,12 +104,13 @@ static char readInput(char* buf, size_t* siz, size_t szMax, char key, int flags)
 struct __attribute__((__packed__)) cmd {
   char* name;
   char* path;
+  char* defargs;
 };
 
 static struct cmd cmds[] = {
-  { "ether-wake", "/usr/sbin/ether-wake" },
-  { "echo", "/bin/echo" },
-  { NULL, NULL }
+  { "ether-wake", "/var/media/ftp/bin/suid-ether-wake", "-b -i lan" },
+  { "echo", "/bin/echo", NULL },
+  { NULL, NULL, NULL }
 };
 
 static void print_cmds(void)
@@ -179,13 +180,19 @@ static int exec_cmd(size_t i, char* args, size_t szArgs)
 #ifdef _HAS_MSG
 #define MSGFILE "/tmp/dummyshell.msg"
 #define STRLEN(str) (sizeof(str)/sizeof(str[0]))
-static FILE* msgfile = NULL;
-static void init_msg(void)
+static int msgfd = -1;
+static int init_msg(void)
 {
-  msgfile = fopen(MSGFILE, "a+");
-  if (!msgfile) {
-    fprintf(stderr, "fopen(\"%s\"): %s\n", MSGFILE, strerror(errno));
+  msgfd = open(MSGFILE, O_RDWR | O_CREAT | O_APPEND | O_DSYNC | O_RSYNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+  if (msgfd < 0) {
+    fprintf(stderr, "fopen(\"%s\") with write access: %s\n", MSGFILE, strerror(errno));
+    msgfd = open(MSGFILE, O_RDONLY | O_CREAT | O_APPEND | O_DSYNC | O_RSYNC);
+    if (msgfd < 0) {
+      fprintf(stderr, "fopen(\"%s\") readonly: %s\n", MSGFILE, strerror(errno));
+      return -1;
+    }
   }
+  return 0;
 }
 
 struct __attribute__((__packed__)) msgHdr {
@@ -201,18 +208,18 @@ struct __attribute__((__packed__)) msg {
 
 static int read_msg(struct msgHdr* hdr, struct msg* msg)
 {
-  if (!msgfile) return -1;
+  if (msgfd < 0) return -1;
   int ok = 1;
   size_t rb = 0;
-  if ( (rb = fread(hdr, sizeof(struct msgHdr), 1, msgfile)) == 1 ) {
+  if ( (rb = read(msgfd, hdr, sizeof(struct msgHdr)*1)) == sizeof(struct msgHdr)*1 ) {
     msg->from = calloc(hdr->szFrom+1, sizeof(char));
     msg->msg = calloc(hdr->szMsg+1, sizeof(char));
-    if ( (rb = fread(&(msg->from[0]), sizeof(char), hdr->szFrom, msgfile)) != hdr->szFrom )
+    if ( (rb = read(msgfd, &(msg->from[0]), sizeof(char)*hdr->szFrom)) != sizeof(char)*hdr->szFrom )
       ok = 0;
-    if ( (rb = fread(&(msg->msg[0]), sizeof(char), hdr->szMsg, msgfile)) != hdr->szMsg )
+    if ( (rb = read(msgfd, &(msg->msg[0]), sizeof(char)*hdr->szMsg)) != sizeof(char)*hdr->szMsg )
       ok = 0;
     char newline = 0;
-    if ( (rb = fread(&newline, sizeof(char), 1, msgfile)) != 1 )
+    if ( (rb = read(msgfd, &newline, sizeof(char)*1)) != sizeof(char)*1 )
       ok = 0;
     if (!ok || newline != '\n') {
       free(msg->from);
@@ -266,7 +273,7 @@ static int write_msg(char* msg) {
       memcpy(buf+sizeof(hdr)+hdr.szFrom, msg, hdr.szMsg);
       *(buf + sizeof(hdr) + hdr.szFrom + hdr.szMsg) = '\n';
       int failed = 1;
-      if ( fwrite(buf, sizeof(char), sizeof(hdr)+hdr.szFrom+hdr.szMsg+1, msgfile) == sizeof(hdr)+hdr.szFrom+hdr.szMsg+1)
+      if ( write(msgfd, buf, sizeof(char)*(sizeof(hdr)+hdr.szFrom+hdr.szMsg+1)) == sizeof(char)*(sizeof(hdr)+hdr.szFrom+hdr.szMsg+1) )
         failed = 0;
       free(buf);
       return failed;
@@ -434,7 +441,8 @@ int main(int argc, char** argv)
   char inputbuf[absiz+1];
   memset(&inputbuf[0], '\0', absiz+1);
 #ifdef _HAS_MSG
-  init_msg();
+  if (init_msg() != 0)
+    return 1;
   if (argc > 1) {
     const char optRmsg[] = "readmsg";
     const char optWmsg[] = "writemsg";
