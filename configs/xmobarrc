@@ -4,14 +4,16 @@ Config { font = "-misc-fixed-*-*-*-*-18-*-*-*-*-*-*-*"
        , borderColor = "black"
        , fgColor = "grey"
        , position = TopW L 100
-       , commands = [ Run Com "~/.xmobar_hddusage.sh read" ["IO_R"] "ior" 10
-                    , Run Com "~/.xmobar_hddusage.sh write" ["IO_W"] "iow" 10
-                    , Run Com "~/.xmobar_gputemp.sh" ["GPU"] "gtmp" 100
-                    , Run Com "~/.xmobar_gputemp.sh mem" ["GPU"] "gmem" 100
-                    , Run Com "~/.xmobar_cputemp.sh" ["CPU"] "ctmp" 100
-                    , Run Com "~/.xmobar_cputemp.sh" ["MB"] "mtmp" 100
-                    , Run Network "eth0" ["-L","0","-H","32","--normal","green","--high","red"] 10
-                    , Run Network "eth1" ["-L","0","-H","32","--normal","green","--high","red"] 10
+       , commands = [ 
+                      Run Com "./.xmobar_hddusage.sh" ["sda","read"] "sdar" 10
+                    , Run Com "./.xmobar_hddusage.sh" ["sda","write"] "sdaw" 10
+                    , Run Com "./.xmobar_hddusage.sh" ["sdb","read"] "sdbr" 10
+                    , Run Com "./.xmobar_hddusage.sh" ["sdb","write"] "sdbw" 10
+                    , Run Com "./.xmobar_gputemp.sh" ["GPU"] "gtmp" 100
+                    , Run Com "./.xmobar_gputemp.sh" ["MEM"] "gmem" 100
+                    , Run Com "./.xmobar_cputemp.sh" ["CPU"] "ctmp" 100
+                    , Run Com "./.xmobar_cputemp.sh" ["MB"] "mtmp" 100
+                    , Run Network "br0" ["-L","0","-H","32","--normal","green","--high","red"] 10
                     , Run Cpu ["-L","15","-H","50","--normal","green","--high","red"] 20
                     , Run Memory ["Mem: %"] 200
                     , Run Swap [] 200
@@ -20,5 +22,5 @@ Config { font = "-misc-fixed-*-*-*-*-18-*-*-*-*-*-*-*"
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%StdinReader% }{ ioR: %ior% | ioW: %iow% | GPU: %gtmp% %gmem% | CPU: %ctmp% | MB: %mtmp% | %cpu% | %memory% | %eth0% | %eth1% | %date%"
+       , template = "%StdinReader% }{ %br0% | SDA: %sdar%/%sdaw% | SDB: %sdbr%/%sdbw% | %gtmp%%gmem% | CPU: %ctmp% | MB: %mtmp% | %cpu% | %memory% | %date%"
        }
