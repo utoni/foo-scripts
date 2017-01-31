@@ -14,19 +14,6 @@ set -x
 BIN_DLSITE="https://ftp.gnu.org/gnu/binutils"
 GCC_DLSITE="https://mirrors-usa.go-parts.com/gcc/releases"
 
-if [ -d binutils-build ]; then
-	ANSW=$(whiptail --clear --menu 'binutils-build exists: delete?' 15 35 5 y yes n no 3>&1 1>&2 2>&3)
-	if [ x"${ANSW}" = x'y' ]; then
-		rm -rf binutils-build
-	fi
-fi
-if [ -d gcc-build ]; then
-        ANSW=$(whiptail --clear --menu 'gcc-build exists: delete?' 15 35 5 y yes n no 3>&1 1>&2 2>&3)
-	if [ x"${ANSW}" = x'y' ]; then
-		rm -rf gcc-build
-	fi
-fi
-
 # download choosen binutils version
 BIN_CONTENT=$(wget "${BIN_DLSITE}" -q -O - | grep -oE '>binutils-[[:digit:]]+.[[:digit:]]+(|.[[:digit:]]+)(|.[[:digit:]]+).tar.gz<')
 BIN_MENU=$(echo "${BIN_CONTENT}" | sed -n 's/^>binutils-\(.*\).tar.gz<$/\1 binutils-\1/p')
@@ -39,6 +26,22 @@ GCC_MENU=$(echo "${GCC_CONTENT}" | sed -n 's/^"gcc-\(.*\)\/"$/\1 gcc-\1/p')
 GCC_VERSION=$(whiptail --menu 'choose gcc version' 35 55 25 ${GCC_MENU} 3>&1 1>&2 2>&3)
 echo "gcc: ${GCC_VERSION}"
 
+# check build dirs existence
+BIN_BUILD="binutils-${BINUTILS_VERSION}-build"
+if [ -d ${BIN_BUILD} ]; then
+	ANSW=$(whiptail --clear --menu 'binutils-build exists: delete?' 15 35 5 y yes n no 3>&1 1>&2 2>&3)
+	if [ x"${ANSW}" = x'y' ]; then
+		rm -rf ${BIN_BUILD}
+	fi
+fi
+GCC_BUILD="gcc-${GCC_VERSION}-build"
+if [ -d ${GCC_BUILD} ]; then
+	ANSW=$(whiptail --clear --menu 'gcc-build exists: delete?' 15 35 5 y yes n no 3>&1 1>&2 2>&3)
+	if [ x"${ANSW}" = x'y' ]; then
+		rm -rf ${GCC_BUILD}
+	fi
+fi
+
 # "sysroot"
 INSTALLDIR="$(pwd)/gcc-${GCC_VERSION}-root"
 if [ -d "${INSTALLDIR}" ]; then
@@ -50,13 +53,13 @@ fi
 
 # get the source code
 if [ ! -f "binutils-${BINUTILS_VERSION}.tar.gz" ]; then
-	wget -O "binutils-${BINUTILS_VERSION}.tar.gz" http://ftp.gnu.org/gnu/binutils/binutils-${BINUTILS_VERSION}.tar.gz
+	wget -O "binutils-${BINUTILS_VERSION}.tar.gz" "${BIN_DLSITE}/binutils-${BINUTILS_VERSION}.tar.gz"
 fi
-test -d binutils-build || tar -xvf binutils-${BINUTILS_VERSION}.tar.gz
+test -d ${BIN_BUILD} || tar -xvf binutils-${BINUTILS_VERSION}.tar.gz
 if [ ! -f "gcc-${GCC_VERSION}.tar.bz2" ]; then
-	wget -O "gcc-${GCC_VERSION}.tar.bz2" http://www.netgull.com/gcc/releases/gcc-${GCC_VERSION}/gcc-${GCC_VERSION}.tar.bz2
+	wget -O "gcc-${GCC_VERSION}.tar.bz2" "${GCC_DLSITE}/gcc-${GCC_VERSION}/gcc-${GCC_VERSION}.tar.bz2"
 fi
-test -d gcc-build || tar -xvf gcc-${GCC_VERSION}.tar.bz2
+test -d ${GCC_BUILD} || tar -xvf gcc-${GCC_VERSION}.tar.bz2
 
 # download the prerequisites e.g. GMP,MPFR,MPC
 cd gcc-${GCC_VERSION}
@@ -70,19 +73,19 @@ else
 	MPC=mpc-0.8.1
 	if [ ! -f "$MPFR.tar.bz2" -o ! -h mpfr ]; then
 		rm -rf mpfr
-		wget ftp://gcc.gnu.org/pub/gcc/infrastructure/$MPFR.tar.bz2
+		wget -O "$MPFR.tar.bz2" "ftp://gcc.gnu.org/pub/gcc/infrastructure/$MPFR.tar.bz2"
 		tar xjf $MPFR.tar.bz2
 		ln -sf $MPFR mpfr
 	fi
 	if [ ! -f "$GMP.tar.bz2" -o ! -h gmp ]; then
 		rm -rf gmp
-		wget ftp://gcc.gnu.org/pub/gcc/infrastructure/$GMP.tar.bz2
+		wget -O "$GMP.tar.bz2" "ftp://gcc.gnu.org/pub/gcc/infrastructure/$GMP.tar.bz2"
 		tar xjf $GMP.tar.bz2
 		ln -sf $GMP gmp
 	fi
 	if [ ! -f "$MPC.tar.gz" -o ! -h mpc ]; then
 		rm -rf mpc
-		wget ftp://gcc.gnu.org/pub/gcc/infrastructure/$MPC.tar.gz
+		wget -O "$MPC.tar.gz" "ftp://gcc.gnu.org/pub/gcc/infrastructure/$MPC.tar.gz"
 		tar xzf $MPC.tar.gz
 		ln -sf $MPC mpc
 	fi
@@ -109,18 +112,20 @@ unset LPATH
 
 # create the build directories
 cd ..
-mkdir binutils-build gcc-build || true
+mkdir ${BIN_BUILD} ${GCC_BUILD} || true
 
-cd binutils-build
+cd ${BIN_BUILD}
 # build binutils
 ../binutils-${BINUTILS_VERSION}/configure            \
     ${MULTIARCH}                                     \
     --disable-multilib                               \
     --prefix=${INSTALLDIR}                           \
-&& make -j3 \
+    --disable-nls                                    \
+&& sed -i 's|^MAKEINFO\s\+=\s\+makeinfo$|MAKEINFO = true|' ./Makefile \
+&& make -j3                                          \
 && make install
 
-cd ../gcc-build
+cd ../${GCC_BUILD}
 # build gcc
 ../gcc-${GCC_VERSION}/configure                      \
     --prefix=${INSTALLDIR}                           \
@@ -138,9 +143,24 @@ cd ../gcc-build
     --enable-gold=yes                                \
     --enable-ld=yes                                  \
     --enable-lto                                     \
-    MAKEINFO=missing                                 \
+    --disable-nls                                    \
+&& sed -i 's|^MAKEINFO\s\+=\s\+makeinfo$|MAKEINFO = true|' ./Makefile \
 && make -j3                                          \
 && make install
+
+# write activation script to gcc root
+cat << EOF > "${INSTALLDIR}/activate.sh"
+#!/bin/bash
+
+DIR="\$(realpath "\$(dirname "\${BASH_SOURCE}")")"
+echo "*** ROOT: \${DIR}"
+export PATH="\${PATH}:\${DIR}/bin:\${DIR}/usr/bin"
+export CMAKE_C_COMPILER="\${DIR}/bin/gcc"
+export CMAKE_CXX_COMPILER="\${DIR}/bin/g++"
+export CC="\${CMAKE_C_COMPILER}"
+export CXX="\${CMAKE_CXX_COMPILER}"
+EOF
+chmod +x "${INSTALLDIR}/activate.sh"
 
 # Notes
 #
