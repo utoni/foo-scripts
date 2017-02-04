@@ -9,6 +9,7 @@ import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.SetWMName
+import XMonad.Hooks.UrgencyHook
 import XMonad.Layout.NoBorders
 import XMonad.Layout.Tabbed
 import XMonad.Layout.Grid
@@ -18,6 +19,7 @@ import XMonad.Layout.IM
 import XMonad.Actions.SpawnOn
 import XMonad.Actions.PhysicalScreens
 import XMonad.Actions.CycleWS
+import XMonad.Util.Replace
 import XMonad.Util.Run
 import XMonad.Util.EZConfig(additionalKeys)
 import qualified XMonad.StackSet as W
@@ -61,10 +63,16 @@ myWorkspaces = [ comWS, fileWS, webWS, w1WS, w2WS ] ++ map show [6..9]
 myManageHook = composeAll
     [ className =? "Seahorse" --> doShift webWS
     , className =? "Iceweasel" --> doShift webWS
+    , className =? "chromium" --> doShift webWS
     , className =? "chromium-browser" --> doShift webWS
+    , className =? "Chromium-browser" --> doShift webWS
     , className =? "Icedove" --> doShift webWS
     , className =? "Pidgin" --> doShift comWS
     , className =? "qTox" --> doShift comWS
+    , className =? "telegram-desktop" --> doShift comWS
+    , className =? "crx_clhhggbfdinjmjhajaheehoeibfljjno" --> doShift comWS
+    , className =? "TelegramDesktop" --> doShift comWS
+    , className =? "crx_bikioccmkafdpakkkcpdbppfkghcmihk" --> doShift comWS
     , className =? "Eclipse" --> doShift fileWS
     , className =? "Kmail" --> doShift webWS
     , className =? "Konqueror" --> doShift fileWS
@@ -336,7 +344,7 @@ myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList $
 myStartupHook :: X ()
 myStartupHook = do
                 safeSpawnProg "seahorse"
-                safeSpawnProg "chrome"
+                safeSpawnProg "chromium"
                 safeSpawnProg "pidgin"
                 safeSpawnProg "qtox"
 		setWMName "LG3D"
@@ -348,15 +356,17 @@ myStartupHook = do
 -- Run xmonad with all the defaults we set up.
 --
 main = do
+  replace
   xmproc <- spawnPipe "/usr/bin/xmobar ~/.xmobarrc"
-  xmonad $ defaults {
-      logHook = dynamicLogWithPP $ xmobarPP {
-            ppOutput = hPutStrLn xmproc
-          , ppTitle = xmobarColor xmobarTitleColor "" . shorten 100
-          , ppCurrent = xmobarColor xmobarCurrentWorkspaceColor ""
-          , ppSep = " "}
-      , manageHook = myManageHook <+> manageSpawn <+> manageDocks
-  }
+  xmonad $ withUrgencyHook dzenUrgencyHook { args = ["-bg", "darkgreen", "-xs", "1"] }
+         $ defaults {
+               logHook = dynamicLogWithPP $ xmobarPP {
+               ppOutput = hPutStrLn xmproc
+             , ppTitle = xmobarColor xmobarTitleColor "" . shorten 100
+             , ppCurrent = xmobarColor xmobarCurrentWorkspaceColor ""
+             , ppSep = " "}
+             , manageHook = myManageHook <+> manageSpawn <+> manageDocks
+           }
  
 
 ------------------------------------------------------------------------
