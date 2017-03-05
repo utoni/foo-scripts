@@ -14,10 +14,10 @@ class ICMP():
 		icmp = socket.getprotobyname("icmp")
 		try:
 			self.icmp_sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
-		except socket.error, (errno, msg):
-			if errno == 1:
+		except socket.error:
+			if socket.errno == EACCES:
 				# Operation not permitted
-				msg = msg + (
+				msg = socket.strerror + (
 					" - Note that ICMP messages can only be sent from processes"
 					" running as root."
 				)
@@ -111,18 +111,18 @@ class ICMP():
 		the result.
 		"""
 		for i in xrange(count):
-			print "ping %s..." % dest_addr,
+			print('ping %s...' % dest_addr,)
 			try:
 				delay  =  self.do_one(dest_addr, timeout)
-			except socket.gaierror, e:
-				print "failed. (socket error: '%s')" % e[1]
+			except socket.gaierror as e:
+				print('failed. (socket error: "%s")' % e[1])
 				break
 
 			if delay  ==  None:
-				print "failed. (timeout within %ssec.)" % timeout
+				print('failed. (timeout within %ssec.)' % timeout)
 			else:
 				delay  =  delay * 1000
-				print "get ping in %0.4fms" % delay
+				print('get ping in %0.4fms' % delay)
 		print
 
 

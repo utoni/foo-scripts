@@ -6,7 +6,12 @@ import sys, os, errno, random, traceback
 import socket, fcntl, select
 import binascii
 # thread imports
-import Queue
+try:
+	import Queue
+	PYQUEUE=Queue
+except ImportError:
+	import queue
+	PYQUEUE=queue
 import threading
 import time
 # signalling
@@ -86,7 +91,7 @@ class RawPkgSender(RawPkgBase):
 		self.pkg_send_loop()
 
 	def genRandomMac(self, onlyValid=True):
-		macAddr = ''.join(random.choice("1234567890abcdef") for a in xrange(12))
+		macAddr = ''.join(random.choice("1234567890abcdef") for a in range(12))
 		if onlyValid:
 			macAddr = '{0:x}'.format( int(macAddr, 16) & 0xFCFFFFFFFFFF )
 		return macAddr
@@ -107,7 +112,7 @@ class RawPkgSender(RawPkgBase):
 			else subnets.get(which, subnets.get(0))
 
 	def genRandomID(self, length):
-		return ''.join(random.choice("1234567890abcdef") for a in xrange(length))
+		return ''.join(random.choice("1234567890abcdef") for a in range(length))
 
 	def genEtherPkg(self, srcMac, dstMac, ethProto, data=None):
 		return struct.pack("!6s6sH", binascii.unhexlify(dstMac), binascii.unhexlify(srcMac), int(ethProto)) \
@@ -141,7 +146,7 @@ class RawPkgSender(RawPkgBase):
 		# calc ip hdr checksum
 		added = 0
 		# add all 16 bit fields
-		for idx in xrange(10):
+		for idx in range(10):
 			added = added + struct.unpack("!H", str(ip4Pkg[2*idx:2*idx+2]))[0]
 		# add 8 bit carry (if exists) to 16 Bit value
 		while (added & 0xFF0000) > 0:
@@ -163,7 +168,7 @@ class RawPkgSender(RawPkgBase):
 				(IP_UDP & 0xFF) + (udplen & 0xFFFF)
 		# add all udp header + udp data words
 		isEvenLen = True if udplen%2 == 0 else False
-		for idx in xrange(udplen/2) if isEvenLen else xrange((udplen-1)/2):
+		for idx in range(udplen/2) if isEvenLen else range((udplen-1)/2):
 			chksm = chksm + struct.unpack("!H", str(udpPkg[idx*2:2*idx+2]))[0]
 		# if datagram length is uneven, add the last byte
 		if not isEvenLen:
@@ -197,11 +202,11 @@ class RawPkgSender(RawPkgBase):
 		self.__rSocket.bind((self._nIface, 0))
 
 		# set capture event
-                while not self._eActive.isSet():
+		while not self._eActive.isSet():
                         time.sleep(0.1)
-                while self._eActive.isSet():
+		while self._eActive.isSet():
 			time.sleep(1.0)
-                        try:
+			try:
 				#pkg = self.genArpPkg('0021e9e6b9c0', '172.29.1.153', 'd4ae52cfc04c', '172.29.1.166', self.genRandomMac())
 				#pkg = self.genUdpPkg('0021e9e6b9c0', 'ffffffffffff', '127.0.0.1', '255.255.255.255', 25, 6667, 'AAAAAACCD')
 				xid = self.genRandomID(8)
@@ -215,11 +220,11 @@ class RawPkgSender(RawPkgBase):
 				pkg = self.genDhcpPkg(src, 'ffffffffffff', 0x01, xid, 3, rip)
 				self.__rSocket.send(pkg)
 				time.sleep(1)
-                        except Exception as e:
+			except Exception as e:
 				exc_type, exc_obj, exc_tb = sys.exc_info()
 				fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                                self._lastErr = str(fname) + '(' + str(exc_tb.tb_lineno) + '): ' + str(e)
-                                continue
+				self._lastErr = str(fname) + '(' + str(exc_tb.tb_lineno) + '): ' + str(e)
+				continue
 
 class RawPkgCapturer(RawPkgBase):
 	CAPTURE_PROTOCOLS_ETH = [ ETH_IP  # ETHNERNET_IP
@@ -239,7 +244,7 @@ class RawPkgCapturer(RawPkgBase):
 		self.__rSocket = socket.socket(socket.PF_PACKET,socket.SOCK_RAW,socket.htons(ETH_PROTO_ALL))
 		# enable promisc mode
 		ifr = ifreq()
-		ifr.ifr_ifrn = netif
+		ifr.ifr_ifrn = netif.encode()
 		ret = fcntl.ioctl(self.__rSocket.fileno(), ifr.SIOCGIFFLAGS, ifr) # G for GET Socket FLAGS
 		if ret != 0:
 			raise Exception('SIOCGIFFLAGS failed')
@@ -272,7 +277,7 @@ class RawPkgCapturer(RawPkgBase):
 	def getIP(self):
 		return socket.inet_ntoa(fcntl.ioctl(self.__rSocket.fileno(),
 			  0x8915, # SIOCGIFADDR
-			  struct.pack('256s', self._nIface[:15])
+			  struct.pack('256s', self._nIface[:15].encode())
 			)[20:24])
 
 	def getHW(self):
@@ -353,7 +358,7 @@ def readProcRoute():
 				continue
 			line = line.strip().split()
 			routelist.append(( socket.inet_ntoa(struct.pack("<L", int(line[2], 16))), line[0], socket.inet_ntoa(struct.pack("<L", int(line[1], 16))), socket.inet_ntoa(struct.pack("<L", int(line[7], 16))) ))
-        return routelist
+	return routelist
 
 def getGW(arpDict, routeList):
 	gwTpl = None
@@ -416,7 +421,7 @@ def hostDictToList(hostDict):
 def ipAdrInNet(ipAddrStr, netStr):
 	ipAddr = struct.unpack('L', socket.inet_aton(ipAddrStr))[0]
 	netaddr, bits = netStr.split('/')
-	netmask = struct.unpack('L', socket.inet_aton(netaddr))[0] & ((2L<<int(bits)-1)-1)
+	netmask = struct.unpack('L', socket.inet_aton(netaddr))[0] & ((2<<int(bits)-1)-1)
 	return ipAddr & netmask == netmask
 
 def hostIsPrivateSubnet(ipAddr):
@@ -452,7 +457,7 @@ def calcHostScore(hostList, myHwAddr):
 	scoreList = sorted(scoreList, key=lambda host: host[5], reverse=True)
 	( (srcMac,dstMac), (srcIP,dstIP), ethProto, ipProto, pkgCount, score ) = scoreList[0]
 	print
-	print scoreList
+	print(scoreList)
 	if hostIsPrivateSubnet(srcIP) is True:
 		return (dstMac, dstIP, srcMac, srcIP, score) if dstMac != 'ffffffffffff' else None
 	elif hostIsPrivateSubnet(dstIP) is True:
@@ -471,32 +476,18 @@ else:
 	sys.stderr.flush()
 
 # start pkg capture thread
-_pkgCaptureTuples = Queue.Queue()
-_pkgSenderTuples  = Queue.Queue()
-netif = 'eth1'
-print '> listen on interface', netif
+_pkgCaptureTuples = PYQUEUE.Queue()
+_pkgSenderTuples  = PYQUEUE.Queue()
+netif = 'eth0'
+if len(sys.argv) == 2:
+	netif = sys.argv[1]
+print('> listen on interface', netif)
 rps = RawPkgSender(netif, _pkgSenderTuples)
 rps.daemon = False
 # fire up our sender thread
 rps.start()
 rps.enable()
 
-try:
-	while True:
-		time.sleep(1.0)
-		if rps.hasLastErr():
-			print rps.getLastErr()
-except KeyboardInterrupt:
-	rps.disable()
-	rps.join()
-	sys.exit(0)
-except  Exception as e:
-	if e:
-		print e
-	rps.disable()
-	rps.join()
-	sys.exit(0)
-	
 rpc = RawPkgCapturer(netif, _pkgCaptureTuples)
 rpc.daemon = False
 # fire up our capture thread
@@ -504,7 +495,7 @@ rpc.start()
 
 # sighandler
 def sighandler(signum, frame):
-	print 'Signal(' + str(signum) + ')'
+	print('Signal(' + str(signum) + ')')
 	rpc.disable()
 # init signal handler
 signal.signal(signal.SIGINT, sighandler)
@@ -518,6 +509,8 @@ doInitia = True
 printHdr = True
 hostDict = dict()
 rpc.enable()
+print('> mainloop')
+CMD_MAXTRIES=5
 while rpc.isEnabled():
 	try:
 		if rpc.hasLastErr():
@@ -531,8 +524,15 @@ while rpc.isEnabled():
 			doInitia = False
 			endTime = float(time.time() + float(MAX_INITIME))
 			initPkg = 0
-			while runCmd("ifconfig " + netif + " 0.0.0.0 up hw ether " + HwToHwColon(rps.genRandomMac()), True) is not 0:
-				pass
+			tries=CMD_MAXTRIES
+			while tries > 0:
+				CMD="ifconfig %s 0.0.0.0 up hw ether %s"
+				if runCmd(CMD % (netif, HwToHwColon(rps.genRandomMac())), True) is 0:
+					break
+				CMD="ifconfig %s 0.0.0.0 up"
+				if runCmd(CMD % (netif), True) is 0:
+					break
+				tries -= 1
 			rps.reOpen()
 			rpc.reOpen()
 			sys.stdout.write('\rgathering traffic (' + str(MIN_INITPKG) + ' pkgs/' + str(MAX_INITIME) + 's)')
@@ -544,7 +544,7 @@ while rpc.isEnabled():
 					else:
 						sys.stdout.write('#')
 					initPkg = initPkg+1
-				except Queue.Empty:
+				except PYQUEUE.Empty:
 					sys.stdout.write('.')
 				sys.stdout.flush()
 			hostList = hostDictToList(hostDict)
@@ -590,7 +590,7 @@ while rpc.isEnabled():
 				curPkgs = curPkgs+1
 				if curPkgs >= MAX_PKGCAPT:
 					break
-		except Queue.Empty:
+		except PYQUEUE.Empty:
 			if ICMP_AVAIL and time.time()-lastTime > 1.0:
 				lastTime = time.time()
 				icmpFailed = 0
