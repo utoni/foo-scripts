@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -e
+set -x
+
+DESTDIR="$1"
+TMPDIR="$(mktemp -d)"
+TMPDIRDEB="${TMPDIR}/$(basename ${DESTDIR})"
+
+if [ "x${DESTDIR}" = "x" ]; then
+	echo "usage: $0 [DESTDIR]" >&2
+	exit 1
+fi
+
+if [ -d "${DESTDIR}/debian" ]; then
+	cp -rfv "${DESTDIR}" "${TMPDIRDEB}"
+	rm -rf "${TMPDIRDEB}/.git*"
+	tar -czvf "${DESTDIR}.orig.tar.gz" -C "${TMPDIR}" "$(basename ${DESTDIR})"
+else
+	echo "$0: ${DESTDIR}/debian does not exist!" >&2
+	exit 2
+fi
