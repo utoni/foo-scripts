@@ -13,6 +13,22 @@ CONFIG_DBFILE   = '/var/lib/portalcheck/shelvedb'
 CONFIG_CHECKURL = 'https://portal.imn.htwk-leipzig.de'
 CONFIG_DICTMAX  = 10
 
+CONFIG_MAIL_FROM = 'toni.uhlig@stud.htwk-leipzig.de'
+CONFIG_MAIL_TO   = 'toni.uhlig@stud.htwk-leipzig.de'
+CONFIG_MAIL_CC   = [ 'toni.uhlig@stud.htwk-leipzig.de' ]
+CONFIG_MAIL_HOST = 'localhost'
+
+CONFIG_MAIL_SUBJ = 'Portal state changed: %s'
+CONFIG_MAIL_OFF  = ''+ \
+    'Dies ist eine automatisch generierte E-Mail.\n\n'+ \
+    'Die URI %s ist seit dem %s nicht mehr erreichbar.\n'+ \
+    'Letzter HTTP response code: %s\n\n'+ \
+    'Sie werden benachrichtigt, wenn das Portal wieder erreichbar ist.\n'
+CONFIG_MAIL_ON   = ''+ \
+    'Dies ist eine automatisch generierte E-Mail.\n\n'+ \
+    'Die URI %s ist seit %s wieder erreichbar.\n'+ \
+    'Offline Dauer: %s\n'
+
 TYPE_ONLINE        = 0
 TYPE_ONLINE_AGAIN  = 1
 TYPE_OFFLINE       = 2
@@ -32,6 +48,7 @@ class PortalObject(object):
 
 
 class PortalCheck(object):
+    DATETIME_FMT = '%02d.%02d.%04d - %02d:%02d:%02d'
     DICT_LAST = 'last'
     DICT_CURRENT_TYPE = 'cur_type'
     DICT_CURRENT_INDEX = 'cur_index'
@@ -57,6 +74,49 @@ class PortalCheck(object):
     def cleanup(self):
         self.shelvedb.close()
 
+    def doTimeFormat(self, tm):
+        lt = time.localtime(tm);
+        return '%02d.%02d.%04d - %02d:%02d:%02d' % (lt.tm_mday, lt.tm_mon, lt.tm_year, lt.tm_hour, lt.tm_min, lt.tm_sec)
+
+    def sendMail(self):
+        typ = self.loadType()
+        typstr = 'UNKNOWN'
+        mailcon = 'EMPTY'
+        last = self.loadLast()
+        tdstr = self.doTimeFormat(last.timestamp)
+        if typ == TYPE_ONLINE or typ == TYPE_ONLINE_AGAIN:
+            typstr = 'ONLINE'
+            ind = self.loadIndex()
+            forelast = self.loadObject(ind - 1)
+            offdays = divmod(last.timestamp - forelast.timestamp, 86400)
+            offhrs = divmod(offdays[1], 3600)
+            offmins = divmod(offhrs[1], 60)
+            offsecs = offmins[1]
+            offstr = '%d Tag%c, %d Stunde%c, %d Minute%c, %d Sekunde%c' % \
+                (offdays[0], 'e' if offdays[0] != 1 else ' ', \
+                 offhrs[0], 'n' if offhrs[0] != 1 else ' ', \
+                 offmins[0], 'n' if offmins[0] != 1 else ' ', \
+                 offsecs, 'n' if offsecs != 1 else ' ')
+            mailcon = CONFIG_MAIL_ON % (self.uri, tdstr, offstr)
+        elif typ == TYPE_OFFLINE or typ == TYPE_OFFLINE_AGAIN:
+            typstr = 'OFFLINE'
+            httpresp = str(last.httpresp) if last.httpresp != -1 else 'connection error (' + str(last.errstr) + ')'
+            mailcon = CONFIG_MAIL_OFF % (self.uri, tdstr, httpresp)
+        else:
+            return
+        subj = CONFIG_MAIL_SUBJ % (typstr)
+        dbg(str(subj))
+        dbg(str(mailcon))
+        import smtplib
+        from email.mime.text import MIMEText
+        msg = MIMEText(str(mailcon))
+        msg['Subject'] = str(subj)
+        msg['From'] = CONFIG_MAIL_FROM
+        msg['To'] = CONFIG_MAIL_TO
+        msg['Cc'] = ', '.join(CONFIG_MAIL_CC)
+        s = smtplib.SMTP(CONFIG_MAIL_HOST)
+        s.sendmail(CONFIG_MAIL_FROM, [CONFIG_MAIL_TO]+CONFIG_MAIL_CC, msg.as_string())
+
     def doCheck(self):
         sock = urllib.urlopen(str(self.uri))
         resp = sock.getcode()
@@ -69,14 +129,11 @@ class PortalCheck(object):
         self.shelvedb[self.DICT_LAST] = portalObject
 
     def loadObject(self, index):
-        return self.shelvedb[str(index)]
+        return self.shelvedb[str( (int(index) % CONFIG_DICTMAX) )]
     def storeObject(self, portalObject):
         ind = self.loadIndex()
         self.shelvedb[str(ind)] = portalObject
-        if ind + 1 == CONFIG_DICTMAX:
-            ind = 0
-        else:
-            ind = ind + 1
+        ind = (ind + 1) % CONFIG_DICTMAX
         self.storeIndex(ind)
 
     def loadType(self):
@@ -85,15 +142,14 @@ class PortalCheck(object):
         self.shelvedb[self.DICT_CURRENT_TYPE] = int(onlineType)
 
     def loadIndex(self):
-        return int(self.shelvedb[self.DICT_CURRENT_INDEX])
+        return int(self.shelvedb[self.DICT_CURRENT_INDEX] % CONFIG_DICTMAX)
     def storeIndex(self, index):
-        self.shelvedb[self.DICT_CURRENT_INDEX] = index
+        self.shelvedb[self.DICT_CURRENT_INDEX] = (index % CONFIG_DICTMAX)
 
     def listObjects(self):
         for (key, value) in sorted(self.shelvedb.iteritems()):
             if type(value) == PortalObject:
-                td = time.localtime(value.timestamp)
-                outdate = '%02d.%02d.%04d - %02d:%02d:%02d' % (td.tm_mday, td.tm_mon, td.tm_year, td.tm_hour, td.tm_min, td.tm_sec)
+                outdate = self.doTimeFormat(value.timestamp)
                 outval = outdate + ' ' + rjust(str(value.httpresp), 3, ' ')
             else:
                 outval = str(value)
@@ -107,7 +163,7 @@ class PortalCheck(object):
             httpresp = -1
             errstr = str(err)
         curtime = time.time()
-        po = PortalObject(curtime, httpresp)
+        po = PortalObject(curtime, httpresp, errstr)
         ct = self.loadType()
         if httpresp is 200:
             dbg('Ok')
@@ -118,6 +174,7 @@ class PortalCheck(object):
                 last = self.loadLast()
                 self.storeObject(last)
                 self.storeLast(po)
+                self.sendMail()
             self.shelvedb.sync()
         else:
             dbgstr = str()
@@ -130,6 +187,7 @@ class PortalCheck(object):
                 last = self.loadLast()
                 self.storeObject(last)
                 self.storeLast(po)
+                self.sendMail()
 
 
 if __name__ == '__main__':
