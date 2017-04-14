@@ -3,7 +3,7 @@
 set -e
 set -x
 
-DESTDIR="$1"
+DESTDIR="$(realpath $1)"
 TMPDIR="$(mktemp -d)"
 TMPDIRDEB="${TMPDIR}/$(basename ${DESTDIR})"
 
@@ -13,9 +13,11 @@ if [ "x${DESTDIR}" = "x" ]; then
 fi
 
 if [ -d "${DESTDIR}/debian" ]; then
-	cp -rfv "${DESTDIR}" "${TMPDIRDEB}"
+	cp -rf "${DESTDIR}" "${TMPDIRDEB}"
 	rm -rf "${TMPDIRDEB}/.git*"
-	tar -czvf "${DESTDIR}.orig.tar.gz" -C "${TMPDIR}" "$(basename ${DESTDIR})"
+	NEWNAME=$(basename ${DESTDIR} | sed 's/-/_/')
+	NEWDIR=$(dirname ${DESTDIR})
+	tar -czf "${NEWDIR}/${NEWNAME}.orig.tar.gz" -C "${TMPDIR}" "$(basename ${DESTDIR})"
 else
 	echo "$0: ${DESTDIR}/debian does not exist!" >&2
 	exit 2
