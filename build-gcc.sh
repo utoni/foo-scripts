@@ -56,10 +56,13 @@ if [ ! -f "binutils-${BINUTILS_VERSION}.tar.gz" ]; then
 	wget -O "binutils-${BINUTILS_VERSION}.tar.gz" "${BIN_DLSITE}/binutils-${BINUTILS_VERSION}.tar.gz"
 fi
 test -d ${BIN_BUILD} || tar -xvf binutils-${BINUTILS_VERSION}.tar.gz
-if [ ! -f "gcc-${GCC_VERSION}.tar.bz2" ]; then
-	wget -O "gcc-${GCC_VERSION}.tar.bz2" "${GCC_DLSITE}/gcc-${GCC_VERSION}/gcc-${GCC_VERSION}.tar.bz2"
+if [ ! -f "gcc-${GCC_VERSION}.tar.bz2" -a ! -f "gcc-${GCC_VERSION}.tar.gz" ]; then
+	wget -O "gcc-${GCC_VERSION}.tar.bz2" "${GCC_DLSITE}/gcc-${GCC_VERSION}/gcc-${GCC_VERSION}.tar.bz2" || \
+        { rm -f "gcc-${GCC_VERSION}.tar.bz2"; \
+            wget -O "gcc-${GCC_VERSION}.tar.gz" "${GCC_DLSITE}/gcc-${GCC_VERSION}/gcc-${GCC_VERSION}.tar.gz"; }
 fi
-test -d ${GCC_BUILD} || tar -xvf gcc-${GCC_VERSION}.tar.bz2
+test ! -d ${GCC_BUILD} -a -r gcc-${GCC_VERSION}.tar.bz2 && tar -xvf gcc-${GCC_VERSION}.tar.bz2
+test ! -d ${GCC_BUILD} -a -r gcc-${GCC_VERSION}.tar.gz && tar -xvf gcc-${GCC_VERSION}.tar.gz
 
 # download the prerequisites e.g. GMP,MPFR,MPC
 cd gcc-${GCC_VERSION}
