@@ -9,6 +9,7 @@ import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.SetWMName
+import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.UrgencyHook
 import XMonad.Layout.NoBorders
 import XMonad.Layout.Tabbed
@@ -22,6 +23,7 @@ import XMonad.Actions.CycleWS
 import XMonad.Util.Replace
 import XMonad.Util.Run
 import XMonad.Util.EZConfig(additionalKeys)
+import XMonad.Util.NamedScratchpad
 import qualified XMonad.StackSet as W
 import qualified Data.Map as M
 
@@ -38,10 +40,11 @@ myTerminal = "x-terminal-emulator"
 -- The default number of workspaces (virtual screens) and their names.
 --
 comWS  = "1:com"
-fileWS = "2:file"
+fileWS = "2:mail"
 webWS  = "3:web"
 w1WS   = "4:work1"
 w2WS   = "5:work2"
+W3WS   = "6:work3"
 myWorkspaces :: [WorkspaceId]
 myWorkspaces = [ comWS, fileWS, webWS, w1WS, w2WS ] ++ map show [6..9]
  
@@ -64,6 +67,8 @@ myManageHook = composeAll
     [ className =? "Seahorse" --> doShift webWS
     , className =? "Iceweasel" --> doShift webWS
     , className =? "chromium" --> doShift webWS
+    , className =? "Chromium" --> doShift webWS
+    , resource =? "browser" --> doShift webWS
     , className =? "chromium-browser" --> doShift webWS
     , className =? "Chromium-browser" --> doShift webWS
     , className =? "Icedove" --> doShift webWS
@@ -83,6 +88,10 @@ myManageHook = composeAll
     , className =? "MPlayer" --> doFloat
     , className =? "VirtualBox" --> doShift w1WS
     , className =? "Xchat" --> doShift w2WS
+    , className =? "claws-mail" --> doShift fileWS
+    , className =? "Claws-mail" --> doShift fileWS
+    , className =? "notes" --> nonFloating
+    , className =? "xmobar" --> doIgnore
     , isFullscreen --> (doF W.focusDown <+> doFullFloat)]
 
 
@@ -265,6 +274,10 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   , ((modMask, xK_l),
      sendMessage Expand)
 
+  -- ToggleStruts
+  , ((modMask, xK_b),
+     sendMessage ToggleStruts)
+
   -- Push window back into tiling.
   , ((modMask, xK_t),
      withFocused $ windows . W.sink)
@@ -275,10 +288,6 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   -- Quit xmonad.
   , ((modMask .|. shiftMask, xK_q),
        spawn "/sbin/start-stop-daemon -S -b --exec /usr/bin/killall -- -TERM -u `id -nu`")
-
-  -- Restart xmonad.
-  , ((modMask, xK_q),
-     restart "xmonad" True)
   ]
   ++
  
@@ -346,7 +355,7 @@ myStartupHook = do
                 safeSpawnProg "seahorse"
                 safeSpawnProg "chromium"
                 safeSpawnProg "pidgin"
-                safeSpawnProg "qtox"
+                safeSpawnProg "claws.sh"
 		setWMName "LG3D"
                 nextWS
                 nextWS
