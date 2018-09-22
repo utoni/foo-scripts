@@ -124,6 +124,7 @@ cd ${BIN_BUILD}
     --disable-multilib                               \
     --prefix=${INSTALLDIR}                           \
     --disable-nls                                    \
+    --enable-gold=default                            \
 && sed -i 's|^MAKEINFO\s\+=\s\+makeinfo$|MAKEINFO = true|' ./Makefile \
 && make -j3                                          \
 && make install
@@ -140,7 +141,7 @@ cd ../${GCC_BUILD}
     --enable-threads=posix                           \
     --enable-__cxa_atexit                            \
     --enable-clocale=gnu                             \
-    --enable-languages=c,c++                         \
+    --enable-languages=c,c++,go                      \
     --disable-multilib                               \
     --with-system-zlib                               \
     --enable-gold=yes                                \
@@ -157,7 +158,7 @@ cat << EOF > "${INSTALLDIR}/activate.sh"
 
 DIR="\$(realpath "\$(dirname "\${BASH_SOURCE}")")"
 echo "*** ROOT: \${DIR}"
-export PATH="\${PATH}:\${DIR}/bin:\${DIR}/usr/bin"
+export PATH="\${DIR}/bin:\${DIR}/usr/bin:\${PATH}"
 export CMAKE_C_COMPILER="\${DIR}/bin/gcc"
 export CMAKE_CXX_COMPILER="\${DIR}/bin/g++"
 export CC="\${CMAKE_C_COMPILER}"
