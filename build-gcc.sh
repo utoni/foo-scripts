@@ -13,6 +13,7 @@ set -x
 
 BIN_DLSITE="https://ftp.gnu.org/gnu/binutils"
 GCC_DLSITE="https://mirrors-usa.go-parts.com/gcc/releases"
+CPUCORES=$(cat /proc/cpuinfo | grep -E '^processor' | wc -l)
 
 # download choosen binutils version
 BIN_CONTENT=$(wget "${BIN_DLSITE}" -q -O - | grep -oE '>binutils-[[:digit:]]+.[[:digit:]]+(|.[[:digit:]]+)(|.[[:digit:]]+).tar.gz<')
@@ -126,7 +127,7 @@ cd ${BIN_BUILD}
     --disable-nls                                    \
     --enable-gold=default                            \
 && sed -i 's|^MAKEINFO\s\+=\s\+makeinfo$|MAKEINFO = true|' ./Makefile \
-&& make -j3                                          \
+&& make -j${CPUCORES:-2}                             \
 && make install
 
 cd ../${GCC_BUILD}
@@ -149,7 +150,7 @@ cd ../${GCC_BUILD}
     --enable-lto                                     \
     --disable-nls                                    \
 && sed -i 's|^MAKEINFO\s\+=\s\+makeinfo$|MAKEINFO = true|' ./Makefile \
-&& make -j3                                          \
+&& make -j${CPUCORES:-2}                             \
 && make install
 
 # write activation script to gcc root
