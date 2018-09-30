@@ -27,6 +27,16 @@ GCC_MENU=$(echo "${GCC_CONTENT}" | sed -n 's/^"gcc-\(.*\)\/"$/\1 gcc-\1/p')
 GCC_VERSION=$(whiptail --menu 'choose gcc version' 35 55 25 ${GCC_MENU} 3>&1 1>&2 2>&3)
 echo "gcc: ${GCC_VERSION}"
 
+# build gccgo?
+GCCGO_ENABLE=$(whiptail --clear --menu 'build gccgo?' 15 35 5 y yes n no 3>&1 1>&2 2>&3)
+if [ x"${GCCGO_ENABLE}" = x'y' ]; then
+	GCCGO_BIN="--enable-gold=yes"
+	GCCGO_GCC=",go"
+else
+	GCCGO_BIN="--enable-ld=yes"
+	GCCGO_GCC=""
+fi
+
 # check build dirs existence
 BIN_BUILD="binutils-${BINUTILS_VERSION}-build"
 if [ -d ${BIN_BUILD} ]; then
@@ -125,7 +135,7 @@ cd ${BIN_BUILD}
     --disable-multilib                               \
     --prefix=${INSTALLDIR}                           \
     --disable-nls                                    \
-    --enable-gold=default                            \
+    ${GCCGO_BIN}                                     \
 && sed -i 's|^MAKEINFO\s\+=\s\+makeinfo$|MAKEINFO = true|' ./Makefile \
 && make -j${CPUCORES:-2}                             \
 && make install
@@ -142,11 +152,10 @@ cd ../${GCC_BUILD}
     --enable-threads=posix                           \
     --enable-__cxa_atexit                            \
     --enable-clocale=gnu                             \
-    --enable-languages=c,c++,go                      \
+    --enable-languages=c,c++${GCCGO_GCC}             \
     --disable-multilib                               \
     --with-system-zlib                               \
-    --enable-gold=yes                                \
-    --enable-ld=yes                                  \
+    ${GCCGO_BIN}                                     \
     --enable-lto                                     \
     --disable-nls                                    \
 && sed -i 's|^MAKEINFO\s\+=\s\+makeinfo$|MAKEINFO = true|' ./Makefile \
