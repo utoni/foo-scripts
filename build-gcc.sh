@@ -11,6 +11,13 @@ set -x
 #GCC_VERSION="4.4.2"
 #BINUTILS_VERSION="2.25"
 
+if [ ! -x /usr/bin/wget -o ! -x /usr/bin/whiptail ]; then
+	echo "${0}: missing wget/whiptail"
+	echo "${0}: On Debian: \`sudo apt install wget whiptail\`"
+	echo "${0}: On ArchLinux: \`sudo pacman -S wget libnewt\`"
+	exit 1
+fi
+
 BIN_DLSITE="https://ftp.gnu.org/gnu/binutils"
 GCC_DLSITE="https://mirrors-usa.go-parts.com/gcc/releases"
 CPUCORES=$(cat /proc/cpuinfo | grep -E '^processor' | wc -l)
