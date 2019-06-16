@@ -10,6 +10,16 @@ set -x
 #or
 #GCC_VERSION="4.4.2"
 #BINUTILS_VERSION="2.25"
+#or
+#GCC_VERSION="4.9.4"
+#BINUTILS_VERSION="2.27"
+
+if [ ! -x /usr/bin/wget -o ! -x /usr/bin/whiptail ]; then
+	echo "${0}: missing wget/whiptail"
+	echo "${0}: On Debian: \`sudo apt install wget whiptail\`"
+	echo "${0}: On ArchLinux: \`sudo pacman -S wget libnewt\`"
+	exit 1
+fi
 
 BIN_DLSITE="https://ftp.gnu.org/gnu/binutils"
 GCC_DLSITE="https://mirrors-usa.go-parts.com/gcc/releases"
@@ -26,6 +36,14 @@ GCC_CONTENT=$(wget "${GCC_DLSITE}" -q -O - | grep -oE '"gcc-[[:digit:]]+.[[:digi
 GCC_MENU=$(echo "${GCC_CONTENT}" | sed -n 's/^"gcc-\(.*\)\/"$/\1 gcc-\1/p')
 GCC_VERSION=$(whiptail --menu 'choose gcc version' 35 55 25 ${GCC_MENU} 3>&1 1>&2 2>&3)
 echo "gcc: ${GCC_VERSION}"
+
+# enable multilib?
+MULTILIB_ENABLE=$(whiptail --clear --menu 'enable multilib? (requires libc-dev:i386 as well as libc-dev:amd64)' 15 35 5 y yes n no 3>&1 1>&2 2>&3)
+if [ x"${MULTILIB_ENABLE}" = x'y' ]; then
+	MULTILIB_ARG="--enable-multilib"
+else
+	MULTILIB_ARG="--disable-multilib"
+fi
 
 # build gccgo?
 GCCGO_ENABLE=$(whiptail --clear --menu 'build gccgo?' 15 35 5 y yes n no 3>&1 1>&2 2>&3)
@@ -132,7 +150,7 @@ cd ${BIN_BUILD}
 # build binutils
 ../binutils-${BINUTILS_VERSION}/configure            \
     ${MULTIARCH}                                     \
-    --disable-multilib                               \
+    ${MULTILIB_ARG}                                  \
     --prefix=${INSTALLDIR}                           \
     --disable-nls                                    \
     ${GCCGO_BIN}                                     \
@@ -153,7 +171,7 @@ cd ../${GCC_BUILD}
     --enable-__cxa_atexit                            \
     --enable-clocale=gnu                             \
     --enable-languages=c,c++${GCCGO_GCC}             \
-    --disable-multilib                               \
+    ${MULTILIB_ARG}                                  \
     --with-system-zlib                               \
     ${GCCGO_BIN}                                     \
     --enable-lto                                     \

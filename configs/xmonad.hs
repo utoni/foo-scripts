@@ -44,7 +44,6 @@ fileWS = "2:mail"
 webWS  = "3:web"
 w1WS   = "4:work1"
 w2WS   = "5:work2"
-W3WS   = "6:work3"
 myWorkspaces :: [WorkspaceId]
 myWorkspaces = [ comWS, fileWS, webWS, w1WS, w2WS ] ++ map show [6..9]
  
@@ -172,9 +171,16 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   , ((modMask .|. shiftMask, xK_l),
      spawn "xtrlock")
 
-  -- Start Firefox
-  , ((modMask .|. shiftMask, xK_i),
-     spawn "iceweasel")
+  -- Start chromium.sh
+  , ((0                    , 0x1008ff18),
+     spawn "chromium.sh")
+
+  -- Start claws.sh
+  , ((0                    , 0x1008ff19),
+     spawn "claws.sh")
+
+  , ((0                    , 0x1008ff1b),
+     spawn "chromium duckduckgo.com")
 
   -- run demnu
   , ((modMask .|. shiftMask, xK_d),
@@ -199,6 +205,18 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   -- Increase volume.
   , ((modMask .|. shiftMask, xK_k),
      spawn "amixer -q set Master 10%+")
+
+  -- Mute volume multimedia key.
+  , ((0                    , 0x1008ff12),
+     spawn "amixer -q set Master toggle")
+
+  -- Decrease volumt multimedia key.
+  , ((0                    , 0x1008ff11),
+    spawn "amixer -q set Master 10%-")
+
+  -- Increase volume multimedia key.
+  , ((0                    , 0x1008ff13),
+    spawn "amixer -q set Master 10%+")
 
   --------------------------------------------------------------------
   -- "Standard" xmonad key bindings
@@ -354,7 +372,7 @@ myStartupHook :: X ()
 myStartupHook = do
                 safeSpawnProg "seahorse"
                 safeSpawnProg "chromium"
-                safeSpawnProg "pidgin"
+                safeSpawnProg "pidgin.sh"
                 safeSpawnProg "claws.sh"
 		setWMName "LG3D"
                 nextWS
