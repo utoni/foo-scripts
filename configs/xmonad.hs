@@ -200,11 +200,11 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
   -- Decrease volume.
   , ((modMask .|. shiftMask, xK_j),
-     spawn "amixer -q set Master 10%-")
+     spawn "amixer -q set Master 5%-")
 
   -- Increase volume.
   , ((modMask .|. shiftMask, xK_k),
-     spawn "amixer -q set Master 10%+")
+     spawn "amixer -q set Master 5%+")
 
   -- Mute volume multimedia key.
   , ((0                    , 0x1008ff12),
@@ -212,11 +212,11 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
   -- Decrease volumt multimedia key.
   , ((0                    , 0x1008ff11),
-    spawn "amixer -q set Master 10%-")
+    spawn "amixer -q set Master 5%-")
 
   -- Increase volume multimedia key.
   , ((0                    , 0x1008ff13),
-    spawn "amixer -q set Master 10%+")
+    spawn "amixer -q set Master 5%+")
 
   --------------------------------------------------------------------
   -- "Standard" xmonad key bindings

@@ -2,7 +2,7 @@
 
 set -e
 
-MONITORS=$(xrandr --query | grep -oE '^[a-zA-Z0-9]{3,8} connected' | cut -d ' ' -f 1)
+MONITORS=$(xrandr --query | grep -oE '^[a-zA-Z0-9\-]{3,8} connected' | cut -d ' ' -f 1)
 GET_BY_CHKSM=${1:-}
 GOT_MONITOR=0
 
