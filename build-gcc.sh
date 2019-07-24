@@ -22,7 +22,7 @@ if [ ! -x /usr/bin/wget -o ! -x /usr/bin/whiptail ]; then
 fi
 
 BIN_DLSITE="https://ftp.gnu.org/gnu/binutils"
-GCC_DLSITE="https://mirrors-usa.go-parts.com/gcc/releases"
+GCC_DLSITE="https://bigsearcher.com/mirrors/gcc/releases"
 CPUCORES=$(cat /proc/cpuinfo | grep -E '^processor' | wc -l)
 
 # download choosen binutils version
