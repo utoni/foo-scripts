@@ -191,6 +191,7 @@ export CMAKE_C_COMPILER="\${DIR}/bin/gcc"
 export CMAKE_CXX_COMPILER="\${DIR}/bin/g++"
 export CC="\${CMAKE_C_COMPILER}"
 export CXX="\${CMAKE_CXX_COMPILER}"
+export LD_LIBRARY_PATH="\${DIR}/lib:\${DIR}/lib64"
 EOF
 chmod +x "${INSTALLDIR}/activate.sh"
 
