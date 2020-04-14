@@ -5,6 +5,7 @@ import os
 start_pids = [pid for pid in os.listdir('/proc') if pid.isdigit()]
 print 'PIDs', str(start_pids)
 
+# we don't do an active sleep here, results in slightly increasing usage for one of your CPU cores
 while True:
     cur_pids = [pid for pid in os.listdir('/proc') if pid.isdigit()]
     for pid in cur_pids:

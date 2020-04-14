@@ -1,1 +1,1 @@
-Some more or less useful scripts/patches/configs.
+Some more or less useful scripts, dotfiles, etc.
