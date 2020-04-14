@@ -1,30 +1,61 @@
-#!/bin/sh
+#!/bin/bash
 
-# background wallpaper
-feh --bg-center ~/wallpaper2.jpg
+PATH=${PATH}:${HOME}/bin
+export PATH
 
-# hide cursor when unused
-unclutter -idle 3 -root &
+xrandr -s 0
+xrdb -load $HOME/.Xdefaults
+xsetroot -cursor_name left_ptr
+xset b off
+xset s off
+xset -dpms
 
-# Turn CapsLock into Control
-xmodmap -e "clear lock" -e "keycode 66 = Control_R" -e "add Control = Control_R"
+# start pulseaudio x11 client
+start-pulseaudio-x11
+#dbus-launch $HOME/bin/pulseaudio &
+#pulseaudio --check || pulseaudio &
+#play /usr/share/sounds/KDE-Sys-Log-In.ogg &
+#pulseaudio.sh --start --dl-search-path=~/bin/pulseaudio/usr/lib/pulse-12.2/modules -n -F ~/bin/pulseaudio/etc/pulse/system.pa
+
+# set background imaae
+feh --bg-center ~/wallpaper5.jpg
+
+# hide cursor when unused (DONT FORGET -noevents / BUG)
+unclutter -idle 3 -root -noevents &
+
+# set X11 keyboard layout
+setxkbmap de
+
+# Turn CapsLock into Control and Multimedia keys
+xmodmap -e "clear lock" -e "keycode 66 = Control_R" -e "add Control = Control_R" -e "keycode 121 = XF86AudioMute" -e "keycode 122 = XF86AudioLowerVolume" -e "keycode 123 = XF86AudioRaiseVolume"
+
+dunst &
+
+#xautolock -nowlocker xtrlock -locker xtrlock &
+#xautolock -nowlocker xtrlock -locker ~/bin/xtrlock-my.sh -time 30 -notify 120 -notifier notify-send &
+xautolock -nowlocker xtrlock -locker /home/toni/bin/xtrlock-my.sh -time 30 -notify 120 -notifier notify-send -corners -000 -cornersize 10 &
 
 # starting gpg daemon
 gpg-agent --daemon --use-standard-socket
 
-# activating xscreensaver
-xscreensaver -nosplash &
+# enable sleepd xidle check
+#sleepctl xon
+# enable x11 diff check
+#sleepctl xdiff 250x500 2250x100
 
-# akonadi server (kde4.* compat)
-if [ -x /usr/bin/akonadi_agent_server ]; then
-  akonadi_agent_server &
+# start socat to tor mail forwarder
+tormail.sh
+
+# start i2pd
+#screen -dmS i2pd bin/i2pd.sh
+
+if [ -x /usr/bin/xcompmgr ]; then
+  /usr/bin/xcompmgr &
 fi
+#if [ -x /usr/bin/ck-launch-session ]; then
+#  exec ck-launch-session dbus-launch /usr/bin/xmonad
+#else
+#  exec dbus-launch /usr/bin/xmonad
+#fi
 
-# activate trickled network bandwith control
-trickled
-
-if [ -x /usr/bin/ck-launch-session ]; then
-  exec ck-launch-session dbus-launch xmonad
-else
-  exec dbus-launch xmonad
-fi
+exec /usr/bin/xmonad
