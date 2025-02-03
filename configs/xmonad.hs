@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -Wno-deprecations #-}
 -- Author: Vic Fryzel, Toni Uhlig
 -- http://github.com/vicfryzel/xmonad-config
 -- https://github.com/lnslbrty/foo-scripts/blob/master/configs/xmonad.hs
@@ -11,6 +12,8 @@ import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.SetWMName
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.UrgencyHook
+import XMonad.Hooks.StatusBar
+import XMonad.Hooks.StatusBar.PP
 import XMonad.Layout.NoBorders
 import XMonad.Layout.Tabbed
 import XMonad.Layout.Grid
@@ -33,7 +36,8 @@ import qualified Data.Map as M
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
 --
-myTerminal = "x-terminal-emulator"
+--myTerminal = "x-terminal-emulator"
+myTerminal = "lxterminal"
 
 ------------------------------------------------------------------------
 -- Workspaces
@@ -67,11 +71,13 @@ myManageHook = composeAll
     , className =? "Iceweasel" --> doShift webWS
     , className =? "chromium" --> doShift webWS
     , className =? "Chromium" --> doShift webWS
+    , className =? "Nightly" --> doShift webWS
     , resource =? "browser" --> doShift webWS
     , className =? "chromium-browser" --> doShift webWS
     , className =? "Chromium-browser" --> doShift webWS
     , className =? "Icedove" --> doShift webWS
     , className =? "Pidgin" --> doShift comWS
+    , className =? "Signal" --> doShift comWS
     , className =? "qTox" --> doShift comWS
     , className =? "telegram-desktop" --> doShift comWS
     , className =? "crx_clhhggbfdinjmjhajaheehoeibfljjno" --> doShift comWS
@@ -130,7 +136,7 @@ myNormalBorderColor = "#7c7c7c"
 myFocusedBorderColor = "#ff0000"
 
 -- Colors for text and backgrounds of each tab when in "Tabbed" layout.
-myTabConfig = defaultTheme {
+myTabConfig = def {
     activeBorderColor = "#7C7C7C",
     activeTextColor = "#CEFFAC",
     activeColor = "#445566",
@@ -169,18 +175,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
   -- Lock the screen using xscreensaver.
   , ((modMask .|. shiftMask, xK_l),
-     spawn "xtrlock")
-
-  -- Start chromium.sh
-  , ((0                    , 0x1008ff18),
-     spawn "chromium.sh")
-
-  -- Start claws.sh
-  , ((0                    , 0x1008ff19),
-     spawn "claws.sh")
-
-  , ((0                    , 0x1008ff1b),
-     spawn "chromium duckduckgo.com")
+     spawn "XSECURELOCK_PASSWORD_PROMPT=asterisks /opt/xsecurelock/bin/xsecurelock")
 
   -- run demnu
   , ((modMask .|. shiftMask, xK_d),
@@ -194,39 +189,35 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   , ((modMask .|. shiftMask, xK_Print),
      spawn "xwd -root -out ~/screenshot_full.xwd; convert ~/screenshot_full.xwd ~/screenshot_full.jpg")
 
-  -- Mute volume.
-  , ((modMask .|. shiftMask, xK_m),
-     spawn "amixer -q set Master toggle")
-
   -- Decrease volume.
   , ((modMask .|. shiftMask, xK_j),
-     spawn "amixer -q set Master 5%-")
+     spawn "pactl set-sink-volume 'alsa_output.pci-0000_00_1f.3.analog-stereo' -5% || true; pactl set-sink-volume 'alsa_output.pci-0000_01_00.1.hdmi-stereo' -5% || true; pactl set-sink-volume 'alsa_output.pci-0000_01_00.1.hdmi-stereo-extra2' -5% || true; pactl set-sink-volume 'alsa_output.usb-Corsair_CORSAIR_VIRTUOSO_USB_Gaming_Headset_13918831000500fc-00.iec958-stereo' -5% || true; pactl set-sink-volume 'alsa_output.usb-Corsair_CORSAIR_VIRTUOSO_Wireless_Gaming_Headset_13d728c8000200dc-00.iec958-stereo' -5% || true")
 
   -- Increase volume.
   , ((modMask .|. shiftMask, xK_k),
-     spawn "amixer -q set Master 5%+")
+     spawn "pactl set-sink-volume 'alsa_output.pci-0000_00_1f.3.analog-stereo' +5% || true; pactl set-sink-volume 'alsa_output.pci-0000_01_00.1.hdmi-stereo' +5% || true; pactl set-sink-volume 'alsa_output.pci-0000_01_00.1.hdmi-stereo-extra2' +5% || true; pactl set-sink-volume 'alsa_output.usb-Corsair_CORSAIR_VIRTUOSO_USB_Gaming_Headset_13918831000500fc-00.iec958-stereo' +5% || true; pactl set-sink-volume 'alsa_output.usb-Corsair_CORSAIR_VIRTUOSO_Wireless_Gaming_Headset_13d728c8000200dc-00.iec958-stereo' +5% || true")
 
   -- Mute volume multimedia key.
-  , ((0                    , 0x1008ff12),
-     spawn "amixer -q set Master toggle")
+  --, ((0                    , 0x1008ff12),
+  --   spawn "amixer -q set Master toggle")
 
   -- Decrease volumt multimedia key.
   , ((0                    , 0x1008ff11),
-    spawn "amixer -q set Master 5%-")
+     spawn "pactl set-sink-volume 'alsa_output.pci-0000_00_1f.3.analog-stereo' -5% || true; pactl set-sink-volume 'alsa_output.pci-0000_01_00.1.hdmi-stereo' -5% || true; pactl set-sink-volume 'alsa_output.pci-0000_01_00.1.hdmi-stereo-extra2' -5% || true; pactl set-sink-volume 'alsa_output.usb-Corsair_CORSAIR_VIRTUOSO_USB_Gaming_Headset_13918831000500fc-00.iec958-stereo' -5% || true; pactl set-sink-volume 'alsa_output.usb-Corsair_CORSAIR_VIRTUOSO_Wireless_Gaming_Headset_13d728c8000200dc-00.iec958-stereo' -5% || true")
 
   -- Increase volume multimedia key.
   , ((0                    , 0x1008ff13),
-    spawn "amixer -q set Master 5%+")
+     spawn "pactl set-sink-volume 'alsa_output.pci-0000_00_1f.3.analog-stereo' +5% || true; pactl set-sink-volume 'alsa_output.pci-0000_01_00.1.hdmi-stereo' +5% || true; pactl set-sink-volume 'alsa_output.pci-0000_01_00.1.hdmi-stereo-extra2' +5% || true; pactl set-sink-volume 'alsa_output.usb-Corsair_CORSAIR_VIRTUOSO_USB_Gaming_Headset_13918831000500fc-00.iec958-stereo' +5% || true; pactl set-sink-volume 'alsa_output.usb-Corsair_CORSAIR_VIRTUOSO_Wireless_Gaming_Headset_13d728c8000200dc-00.iec958-stereo' +5% || true")
 
   --------------------------------------------------------------------
   -- "Standard" xmonad key bindings
   --
 
   -- switch to next physicial monitor
-  , ((modMask .|. shiftMask, xK_x), onNextNeighbour W.view)
+  --, ((modMask .|. shiftMask, xK_x), onNextNeighbour W.view)
 
   -- suspend to ram
-  , ((modMask .|. shiftMask, xK_s), spawn "xtrlock && sudo /usr/sbin/s2ram --force")
+  , ((modMask .|. shiftMask, xK_s), spawn "XSECURELOCK_PASSWORD_PROMPT=asterisks /opt/xsecurelock/bin/xsecurelock && sudo /usr/sbin/s2ram --force")
 
   -- Close focused window.
   , ((modMask .|. shiftMask, xK_c),
@@ -305,7 +296,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
   -- Quit xmonad.
   , ((modMask .|. shiftMask, xK_q),
-       spawn "/sbin/start-stop-daemon -S -b --exec /usr/bin/killall -- -TERM -u `id -nu`")
+       io (exitWith ExitSuccess))
   ]
   ++
  
@@ -370,11 +361,14 @@ myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList $
 --myStartupHook = return ()
 myStartupHook :: X ()
 myStartupHook = do
-                safeSpawnProg "seahorse"
-                safeSpawnProg "chromium"
-                safeSpawnProg "pidgin.sh"
-                safeSpawnProg "claws.sh"
-		setWMName "LG3D"
+                spawnOn "3:web" "firefox.sh"
+                --spawnOn "1:com" "pidgin.sh"
+                spawnOn "2:mail" "thunderbird.sh"
+                --spawnOn "4:work1" "virtualbox"
+                spawnOn "9" "lxterminal --command=\"ssh router\""
+                --spawnOn "9" "lxterminal --command=\"ssh impl\""
+                --spawnOn "1:com" "signal.sh"
+                setWMName "LG3D"
                 nextWS
                 nextWS
  
@@ -384,12 +378,11 @@ myStartupHook = do
 --
 main = do
   replace
-  xmproc <- spawnPipe "/usr/bin/xmobar ~/.xmobarrc"
-  xmonad $ withUrgencyHook dzenUrgencyHook { args = ["-bg", "darkgreen", "-xs", "1"] }
+  xmproc <- statusBarPipe "exec xmobar ~/.xmobarrc" (pure xmobarPP)
+  xmonad $ withSB xmproc . withUrgencyHook dzenUrgencyHook { args = ["-bg", "darkgreen", "-xs", "1"] }
          $ defaults {
                logHook = dynamicLogWithPP $ xmobarPP {
-               ppOutput = hPutStrLn xmproc
-             , ppTitle = xmobarColor xmobarTitleColor "" . shorten 100
+               ppTitle = xmobarColor xmobarTitleColor "" . shorten 100
              , ppCurrent = xmobarColor xmobarCurrentWorkspaceColor ""
              , ppSep = " "}
              , manageHook = myManageHook <+> manageSpawn <+> manageDocks
@@ -404,7 +397,7 @@ main = do
 -- 
 -- No need to modify this.
 --
-defaults = defaultConfig {
+defaults = def {
     -- simple stuff
     terminal = myTerminal,
     focusFollowsMouse = myFocusFollowsMouse,
@@ -421,5 +414,6 @@ defaults = defaultConfig {
     -- hooks, layouts
     startupHook = myStartupHook,
     layoutHook = smartBorders $ myLayout,
-    manageHook = myManageHook
+    manageHook = myManageHook,
+    handleEventHook = mconcat [ handleEventHook def, docksEventHook ]
 }
