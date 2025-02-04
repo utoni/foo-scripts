@@ -28,7 +28,7 @@ function is_mac() {
 # You can override the config in ~/.config/imgur-screenshot/settings.conf
 
 imgur_anon_id="ea6c0ef2987808e"
-imgur_icon_path="${HOME}/Pictures/imgur.png"
+imgur_icon_path="${HOME}/imgur.png"
 
 imgur_acct_key=""
 imgur_secret=""
@@ -38,7 +38,7 @@ album_id=""
 credentials_file="${HOME}/.config/imgur-screenshot/credentials.conf"
 
 file_name_format="imgur-%Y_%m_%d-%H:%M:%S.png" # when using scrot, must end with .png!
-file_dir="${HOME}/Pictures"
+file_dir="${HOME}"
 
 upload_connect_timeout="5"
 upload_timeout="120"
